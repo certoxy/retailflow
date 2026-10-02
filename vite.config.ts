@@ -1,10 +1,16 @@
+import vinext from "vinext";
+import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import rsc from "@vitejs/plugin-rsc";
+
+const useNitro = Boolean(process.env.VERCEL || process.env.NITRO_PRESET);
 
 export default defineConfig({
-  plugins: [react(), rsc()],
   server: {
+    host: "0.0.0.0",
     port: 5173,
   },
+  plugins: [
+    vinext(),
+    ...(useNitro ? [nitro()] : []),
+  ],
 });
