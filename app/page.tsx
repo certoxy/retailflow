@@ -12,7 +12,7 @@ export default function HomePage() {
         </p>
         <div className="status">
           <span className="statusDot" aria-hidden="true" />
-          Staging foundation online
+          RetailFlow foundation online
         </div>
       </section>
     </main>
