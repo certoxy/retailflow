@@ -3,8 +3,9 @@
 import type { Session } from "@supabase/supabase-js";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { WorkspaceShell } from "@/components/workspace-shell";
 
-type Workspace = {
+export type Workspace = {
   profile: { email: string; full_name: string | null } | null;
   is_platform_administrator: boolean;
   memberships: Array<{
@@ -92,16 +93,13 @@ export function RetailFlowApp() {
     );
   }
 
-  const active = workspace.memberships[0];
-  return (
-    <AppShell email={workspace.profile?.email} onSignOut={() => supabase.auth.signOut()}>
-      <DashboardCard
-        eyebrow={`${active.role} · ${active.branches.length} branch${active.branches.length === 1 ? "" : "es"}`}
-        title={`Welcome to ${active.organization_name}`}
-        message="Your organization workspace is ready. Products, inventory, point of sale, and reporting will be introduced through controlled staging releases."
-      />
-    </AppShell>
-  );
+  return <WorkspaceShell
+    email={workspace.profile?.email ?? session.user.email ?? ""}
+    membership={workspace.memberships[0]}
+    isPlatformAdministrator={workspace.is_platform_administrator}
+    onSignOut={() => supabase.auth.signOut()}
+    onWorkspaceRefresh={loadWorkspace}
+  />;
 }
 
 function AuthScreen() {
