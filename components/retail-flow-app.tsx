@@ -30,6 +30,7 @@ export function RetailFlowApp() {
   const [workspace, setWorkspace] = useState<Workspace>(emptyWorkspace);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [inviteToken, setInviteToken] = useState("");
 
   const loadWorkspace = useCallback(async () => {
     setLoading(true);
@@ -45,6 +46,10 @@ export function RetailFlowApp() {
   }, []);
 
   useEffect(() => {
+    const urlToken = new URLSearchParams(window.location.search).get("invite") ?? "";
+    const savedToken = window.localStorage.getItem("retailflow-invite") ?? "";
+    const nextToken = urlToken || savedToken;
+    if (nextToken) { window.localStorage.setItem("retailflow-invite", nextToken); setInviteToken(nextToken); }
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       if (data.session) void loadWorkspace();
@@ -65,6 +70,8 @@ export function RetailFlowApp() {
 
   if (loading) return <LoadingScreen />;
   if (!session) return <AuthScreen />;
+
+  if (inviteToken) return <AppShell email={session.user.email} onSignOut={() => supabase.auth.signOut()}><InvitationAcceptance token={inviteToken} onAccepted={async () => { window.localStorage.removeItem("retailflow-invite"); window.history.replaceState({}, "", window.location.pathname); setInviteToken(""); await loadWorkspace(); }} /></AppShell>;
 
   if (error) {
     return (
@@ -100,6 +107,12 @@ export function RetailFlowApp() {
     onSignOut={() => supabase.auth.signOut()}
     onWorkspaceRefresh={loadWorkspace}
   />;
+}
+
+function InvitationAcceptance({ token, onAccepted }: { token: string; onAccepted: () => Promise<void> }) {
+  const [busy, setBusy] = useState(false); const [error, setError] = useState("");
+  async function accept() { setBusy(true); setError(""); const { error: rpcError } = await supabase.rpc("accept_organization_invitation", { p_token: token }); if (rpcError) setError(rpcError.message); else await onAccepted(); setBusy(false); }
+  return <section className="panel"><p className="eyebrow">Organization invitation</p><h1>Join your RetailFlow workspace</h1><p className="summary">Accept the invitation using the email address it was sent to. Your assigned role and branches will be applied automatically.</p>{error && <div className="formError">{error}</div>}<button className="primaryButton" disabled={busy} onClick={() => void accept()}>{busy ? "Accepting…" : "Accept invitation"}</button></section>;
 }
 
 function AuthScreen() {
