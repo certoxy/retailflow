@@ -4,10 +4,11 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import type { Workspace } from "@/components/retail-flow-app";
 import { PlatformAdministration } from "@/components/platform-administration";
 import { InventoryManagement } from "@/components/inventory-management";
+import { PointOfSale } from "@/components/point-of-sale";
 import { supabase } from "@/lib/supabase/client";
 
 type Membership = Workspace["memberships"][number];
-type Page = "dashboard" | "inventory" | "branches" | "staff" | "settings" | "platform";
+type Page = "dashboard" | "pos" | "inventory" | "branches" | "staff" | "settings" | "platform";
 type AdminData = {
   organization: {
     id: string; name: string; slug: string; business_address: string | null;
@@ -24,6 +25,7 @@ type AdminData = {
 
 const navItems: Array<{ id: Page; label: string; icon: string }> = [
   { id: "dashboard", label: "Dashboard", icon: "▦" },
+  { id: "pos", label: "Point of Sale", icon: "▣" },
   { id: "inventory", label: "Products & Inventory", icon: "▤" },
   { id: "branches", label: "Branches", icon: "⌂" },
   { id: "staff", label: "Staff Access", icon: "◎" },
@@ -57,6 +59,15 @@ export function WorkspaceShell({
 
   useEffect(() => { void load(); }, [load]);
   const branch = useMemo(() => data?.branches.find((item) => item.id === branchId), [data, branchId]);
+  const isOrganizationAdmin = membership.role === "owner" || membership.role === "administrator";
+  const canManageInventory = isOrganizationAdmin || membership.role === "manager";
+  const visibleBranches = isOrganizationAdmin || isPlatformAdministrator ? (data?.branches ?? membership.branches) : membership.branches;
+  const visibleNav = navItems.filter((item) => {
+    if (item.id === "pos") return data?.organization.enabled_modules.pos !== false;
+    if (item.id === "inventory") return canManageInventory && data?.organization.enabled_modules.products !== false && data?.organization.enabled_modules.inventory !== false;
+    if (["branches", "staff", "settings"].includes(item.id)) return isOrganizationAdmin;
+    return true;
+  });
 
   return (
     <main className="workspaceLayout">
@@ -67,7 +78,7 @@ export function WorkspaceShell({
           <span>{membership.role}</span>
         </div>
         <nav>
-          {navItems.filter((item) => item.id !== "inventory" || (data?.organization.enabled_modules.products !== false && data?.organization.enabled_modules.inventory !== false)).map((item) => <button key={item.id} className={page === item.id ? "active" : ""} onClick={() => setPage(item.id)}><span>{item.icon}</span>{item.label}</button>)}
+          {visibleNav.map((item) => <button key={item.id} className={page === item.id ? "active" : ""} onClick={() => setPage(item.id)}><span>{item.icon}</span>{item.label}</button>)}
           {isPlatformAdministrator && <button className={page === "platform" ? "active" : ""} onClick={() => setPage("platform")}><span>◇</span>Platform Administration</button>}
         </nav>
         <div className="sidebarFooter"><span>{email}</span><button onClick={onSignOut}>Sign out</button></div>
@@ -75,11 +86,12 @@ export function WorkspaceShell({
       <section className="workspaceMain">
         <header className="workspaceHeader">
           <div><p className="eyebrow">{membership.organization_name}</p><h1>{titleFor(page)}</h1></div>
-          <label className="branchSelector">Active branch<select value={branchId} onChange={(event) => setBranchId(event.target.value)}>{(data?.branches ?? membership.branches).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label className="branchSelector">Active branch<select value={branchId} onChange={(event) => setBranchId(event.target.value)}>{visibleBranches.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
         </header>
         {error && <div className="formError pageMessage">{error} <button onClick={load}>Retry</button></div>}
         {loading && <div className="contentLoading">Loading workspace…</div>}
         {!loading && data && page === "dashboard" && <Dashboard data={data} branchName={branch?.name ?? "Main Branch"} />}
+        {!loading && data && page === "pos" && <PointOfSale organizationId={data.organization.id} branchId={branchId} branchName={branch?.name ?? "Branch"} canVoid={canManageInventory} />}
         {!loading && data && page === "inventory" && <InventoryManagement organizationId={data.organization.id} branches={data.branches} />}
         {!loading && data && page === "branches" && <Branches data={data} onChanged={async () => { await load(); await onWorkspaceRefresh(); }} />}
         {!loading && data && page === "staff" && <Staff data={data} onChanged={load} />}
@@ -123,4 +135,4 @@ function Settings({ organization, onChanged }: { organization: AdminData["organi
   return <form className="settingsForm" onSubmit={submit}><div className="formGrid"><label>Organization name<input name="name" required defaultValue={organization.name} /></label><label>Organization code<input disabled value={organization.slug} /></label><label>Business email<input name="email" type="email" defaultValue={organization.email ?? ""} /></label><label>Phone<input name="phone" defaultValue={organization.phone ?? ""} /></label><label className="fullWidth">Business address<input name="address" defaultValue={organization.business_address ?? ""} /></label><label>Website<input name="website" type="url" defaultValue={organization.website ?? ""} /></label><label>Receipt footer<input name="receiptFooter" defaultValue={organization.receipt_footer ?? ""} /></label></div>{error && <div className="formError">{error}</div>}{message && <div className="formSuccess">{message}</div>}<button className="primaryButton compact" disabled={busy}>{busy ? "Saving…" : "Save settings"}</button></form>;
 }
 
-function titleFor(page: Page) { return ({ dashboard: "Dashboard", inventory: "Products & Inventory", branches: "Branches", staff: "Staff Access", settings: "Organization Settings", platform: "Platform Administration" } as const)[page]; }
+function titleFor(page: Page) { return ({ dashboard: "Dashboard", pos: "Point of Sale", inventory: "Products & Inventory", branches: "Branches", staff: "Staff Access", settings: "Organization Settings", platform: "Platform Administration" } as const)[page]; }
