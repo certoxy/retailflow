@@ -4,6 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "RetailFlow",
   description: "Multi-tenant retail sales and inventory management by PAOTechs",
+  manifest: "/manifest.webmanifest",
 };
 
 export default function RootLayout({
