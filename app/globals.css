@@ -235,6 +235,14 @@ td small { margin-top: 3px; color: var(--muted); }
 .inviteForm { padding: 24px; border: 1px solid #d4e3e0; border-radius: 17px; background: #fff; box-shadow: 0 10px 34px rgba(23, 74, 77, .055); }
 .inviteForm fieldset { margin: 0; padding: 18px; border: 1px solid #d4e3e0; border-radius: 12px; }
 .inviteForm legend { padding: 0 7px; color: #31575e; font-size: .9rem; font-weight: 800; }
+.inventoryToolbar { display: grid; grid-template-columns: auto minmax(180px, .4fr) auto; align-items: end; gap: 16px; }
+.inventoryTabs { min-width: 290px; }
+.inventoryForm { padding: 24px; border: 1px solid #d4e3e0; border-radius: 17px; background: #fff; box-shadow: 0 10px 34px rgba(23,74,77,.055); }
+.categoryForm { grid-template-columns: 1fr auto; }
+.adjustmentForm { grid-template-columns: 180px 1fr auto; }
+.statusPill.warning { color: #86550d; background: #fff0cd; }
+td.positive { color: #176340; font-weight: 800; }
+td.negative { color: #8b2525; font-weight: 800; }
 .standalonePlatform { max-width: 1240px; margin: 0 auto; }
 .standalonePlatformHeader { margin-bottom: 28px; }
 .standalonePlatformHeader .eyebrow { margin-top: 0; }
@@ -258,4 +266,7 @@ td small { margin-top: 3px; color: var(--muted); }
   .platformSummary, .platformSplit { grid-template-columns: 1fr; }
   .organizationList { border-right: 0; border-bottom: 1px solid #e5eceb; }
   .moduleGrid, .adminGrantForm { grid-template-columns: 1fr; }
+  .inventoryToolbar { grid-template-columns: 1fr; }
+  .inventoryTabs { min-width: 0; }
+  .categoryForm, .adjustmentForm { grid-template-columns: 1fr; }
 }
