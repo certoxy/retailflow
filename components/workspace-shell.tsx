@@ -52,6 +52,7 @@ export function WorkspaceShell({
   const [branchId, setBranchId] = useState(membership.branches[0]?.id ?? "");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true); setError("");
@@ -80,15 +81,23 @@ export function WorkspaceShell({
 
   return (
     <main className="workspaceLayout">
-      <aside className="sidebar">
+      <header className="mobileTopbar">
+        <div className="mobileBrandMark">RF</div>
+        <div className="mobileIdentity"><strong>{branch?.name ?? membership.organization_name}</strong><span>{membership.organization_name}</span></div>
+        <span className="mobileOnline" aria-label="Online" />
+        <button className="mobileMenuButton" onClick={() => setMobileMenuOpen(true)} aria-label="Open navigation">☰</button>
+      </header>
+      {mobileMenuOpen && <button className="mobileMenuBackdrop" aria-label="Close navigation" onClick={() => setMobileMenuOpen(false)} />}
+      <aside className={`sidebar ${mobileMenuOpen ? "mobileOpen" : ""}`}>
+        <button className="mobileMenuClose" onClick={() => setMobileMenuOpen(false)} aria-label="Close navigation">×</button>
         <div className="brand sidebarBrand">RetailFlow</div>
         <div className="organizationIdentity">
           <strong>{membership.organization_name}</strong>
           <span>{membership.role}</span>
         </div>
         <nav>
-          {visibleNav.map((item) => <button key={item.id} className={page === item.id ? "active" : ""} onClick={() => setPage(item.id)}><span>{item.icon}</span>{item.label}</button>)}
-          {isPlatformAdministrator && <button className={page === "platform" ? "active" : ""} onClick={() => setPage("platform")}><span>◇</span>Platform Administration</button>}
+          {visibleNav.map((item) => <button key={item.id} className={page === item.id ? "active" : ""} onClick={() => { setPage(item.id); setMobileMenuOpen(false); }}><span>{item.icon}</span>{item.label}</button>)}
+          {isPlatformAdministrator && <button className={page === "platform" ? "active" : ""} onClick={() => { setPage("platform"); setMobileMenuOpen(false); }}><span>◇</span>Platform Administration</button>}
         </nav>
         <div className="sidebarFooter"><span>{email}</span><button onClick={onSignOut}>Sign out</button></div>
       </aside>
