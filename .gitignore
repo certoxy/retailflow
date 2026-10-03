@@ -8,4 +8,5 @@ dist/
 .wrangler/
 .DS_Store
 *.log
+*.tsbuildinfo
 mobile/android/
