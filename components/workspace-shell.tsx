@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import type { Workspace } from "@/components/retail-flow-app";
+import { PlatformAdministration } from "@/components/platform-administration";
 import { supabase } from "@/lib/supabase/client";
 
 type Membership = Workspace["memberships"][number];
@@ -79,7 +80,7 @@ export function WorkspaceShell({
         {!loading && data && page === "branches" && <Branches data={data} onChanged={async () => { await load(); await onWorkspaceRefresh(); }} />}
         {!loading && data && page === "staff" && <Staff members={data.members} />}
         {!loading && data && page === "settings" && <Settings organization={data.organization} onChanged={async () => { await load(); await onWorkspaceRefresh(); }} />}
-        {!loading && page === "platform" && <EmptyState title="Platform Administration" message="The platform workspace is connected. Organization controls, plan limits, and feature entitlements are the next platform administration checkpoint." />}
+        {!loading && page === "platform" && <PlatformAdministration />}
       </section>
     </main>
   );
@@ -114,5 +115,4 @@ function Settings({ organization, onChanged }: { organization: AdminData["organi
   return <form className="settingsForm" onSubmit={submit}><div className="formGrid"><label>Organization name<input name="name" required defaultValue={organization.name} /></label><label>Organization code<input disabled value={organization.slug} /></label><label>Business email<input name="email" type="email" defaultValue={organization.email ?? ""} /></label><label>Phone<input name="phone" defaultValue={organization.phone ?? ""} /></label><label className="fullWidth">Business address<input name="address" defaultValue={organization.business_address ?? ""} /></label><label>Website<input name="website" type="url" defaultValue={organization.website ?? ""} /></label><label>Receipt footer<input name="receiptFooter" defaultValue={organization.receipt_footer ?? ""} /></label></div>{error && <div className="formError">{error}</div>}{message && <div className="formSuccess">{message}</div>}<button className="primaryButton compact" disabled={busy}>{busy ? "Saving…" : "Save settings"}</button></form>;
 }
 
-function EmptyState({ title, message }: { title: string; message: string }) { return <section className="emptyState"><div>◇</div><h2>{title}</h2><p>{message}</p></section>; }
 function titleFor(page: Page) { return ({ dashboard: "Dashboard", branches: "Branches", staff: "Staff Access", settings: "Organization Settings", platform: "Platform Administration" } as const)[page]; }
