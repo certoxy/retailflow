@@ -211,6 +211,29 @@ td small { margin-top: 3px; color: var(--muted); }
 .contentLoading { padding: 50px; color: var(--muted); text-align: center; }
 .pageMessage { margin-bottom: 20px; }
 .pageMessage button { margin-left: 10px; border: 0; color: inherit; background: transparent; font-weight: 800; }
+.platformSummary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.adminCard { overflow: hidden; border: 1px solid #d4e3e0; border-radius: 17px; background: #fff; box-shadow: 0 10px 34px rgba(23, 74, 77, .055); }
+.adminCard > .sectionActions { padding: 22px 24px; border-bottom: 1px solid #e5eceb; }
+.adminCard h2, .adminCard h3 { margin: 0 0 5px; }
+.platformSplit { display: grid; grid-template-columns: minmax(260px, .7fr) minmax(360px, 1.3fr); min-height: 430px; }
+.organizationList { padding: 12px; border-right: 1px solid #e5eceb; background: #f8fbfa; }
+.organizationList button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 14px; border: 1px solid transparent; border-radius: 11px; color: var(--ink); background: transparent; text-align: left; }
+.organizationList button:hover, .organizationList button.selected { border-color: #c9dfdc; background: #fff; }
+.organizationList button > span:first-child { display: grid; gap: 5px; min-width: 0; }
+.organizationList small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.organizationControls { align-content: start; padding: 26px; }
+.controlHeader { display: flex; align-items: start; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid #e5eceb; }
+.toggleLabel, .moduleGrid label { display: flex; align-items: center; gap: 9px; }
+.toggleLabel input, .moduleGrid input { width: auto; }
+.organizationControls fieldset { margin: 0; padding: 18px; border: 1px solid #d4e3e0; border-radius: 12px; }
+.organizationControls legend { padding: 0 7px; color: #31575e; font-size: .9rem; font-weight: 800; }
+.moduleGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+.adminGrantForm { margin: 20px 24px; grid-template-columns: minmax(240px, 1fr) auto; }
+.tableAction { padding: 7px 10px; border: 1px solid #c9d9d6; border-radius: 8px; color: var(--ink); background: #fff; font-weight: 750; }
+.standalonePlatform { max-width: 1240px; margin: 0 auto; }
+.standalonePlatformHeader { margin-bottom: 28px; }
+.standalonePlatformHeader .eyebrow { margin-top: 0; }
+.standalonePlatformHeader h1 { font-size: clamp(2rem, 5vw, 3.7rem); }
 
 @media (max-width: 1080px) {
   .dashboardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -227,4 +250,7 @@ td small { margin-top: 3px; color: var(--muted); }
   .fullWidth { grid-column: auto; }
   .inlineForm { grid-template-columns: 1fr; }
   .sectionActions { align-items: stretch; flex-direction: column; }
+  .platformSummary, .platformSplit { grid-template-columns: 1fr; }
+  .organizationList { border-right: 0; border-bottom: 1px solid #e5eceb; }
+  .moduleGrid, .adminGrantForm { grid-template-columns: 1fr; }
 }
