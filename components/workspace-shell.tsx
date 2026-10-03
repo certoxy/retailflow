@@ -3,15 +3,16 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import type { Workspace } from "@/components/retail-flow-app";
 import { PlatformAdministration } from "@/components/platform-administration";
+import { InventoryManagement } from "@/components/inventory-management";
 import { supabase } from "@/lib/supabase/client";
 
 type Membership = Workspace["memberships"][number];
-type Page = "dashboard" | "branches" | "staff" | "settings" | "platform";
+type Page = "dashboard" | "inventory" | "branches" | "staff" | "settings" | "platform";
 type AdminData = {
   organization: {
     id: string; name: string; slug: string; business_address: string | null;
     phone: string | null; email: string | null; website: string | null;
-    receipt_footer: string | null;
+    receipt_footer: string | null; enabled_modules: Record<string, boolean>;
   };
   branches: Array<{ id: string; name: string; code: string; active: boolean }>;
   members: Array<{
@@ -23,6 +24,7 @@ type AdminData = {
 
 const navItems: Array<{ id: Page; label: string; icon: string }> = [
   { id: "dashboard", label: "Dashboard", icon: "▦" },
+  { id: "inventory", label: "Products & Inventory", icon: "▤" },
   { id: "branches", label: "Branches", icon: "⌂" },
   { id: "staff", label: "Staff Access", icon: "◎" },
   { id: "settings", label: "Organization Settings", icon: "⚙" },
@@ -65,7 +67,7 @@ export function WorkspaceShell({
           <span>{membership.role}</span>
         </div>
         <nav>
-          {navItems.map((item) => <button key={item.id} className={page === item.id ? "active" : ""} onClick={() => setPage(item.id)}><span>{item.icon}</span>{item.label}</button>)}
+          {navItems.filter((item) => item.id !== "inventory" || (data?.organization.enabled_modules.products !== false && data?.organization.enabled_modules.inventory !== false)).map((item) => <button key={item.id} className={page === item.id ? "active" : ""} onClick={() => setPage(item.id)}><span>{item.icon}</span>{item.label}</button>)}
           {isPlatformAdministrator && <button className={page === "platform" ? "active" : ""} onClick={() => setPage("platform")}><span>◇</span>Platform Administration</button>}
         </nav>
         <div className="sidebarFooter"><span>{email}</span><button onClick={onSignOut}>Sign out</button></div>
@@ -78,6 +80,7 @@ export function WorkspaceShell({
         {error && <div className="formError pageMessage">{error} <button onClick={load}>Retry</button></div>}
         {loading && <div className="contentLoading">Loading workspace…</div>}
         {!loading && data && page === "dashboard" && <Dashboard data={data} branchName={branch?.name ?? "Main Branch"} />}
+        {!loading && data && page === "inventory" && <InventoryManagement organizationId={data.organization.id} branches={data.branches} />}
         {!loading && data && page === "branches" && <Branches data={data} onChanged={async () => { await load(); await onWorkspaceRefresh(); }} />}
         {!loading && data && page === "staff" && <Staff data={data} onChanged={load} />}
         {!loading && data && page === "settings" && <Settings organization={data.organization} onChanged={async () => { await load(); await onWorkspaceRefresh(); }} />}
@@ -120,4 +123,4 @@ function Settings({ organization, onChanged }: { organization: AdminData["organi
   return <form className="settingsForm" onSubmit={submit}><div className="formGrid"><label>Organization name<input name="name" required defaultValue={organization.name} /></label><label>Organization code<input disabled value={organization.slug} /></label><label>Business email<input name="email" type="email" defaultValue={organization.email ?? ""} /></label><label>Phone<input name="phone" defaultValue={organization.phone ?? ""} /></label><label className="fullWidth">Business address<input name="address" defaultValue={organization.business_address ?? ""} /></label><label>Website<input name="website" type="url" defaultValue={organization.website ?? ""} /></label><label>Receipt footer<input name="receiptFooter" defaultValue={organization.receipt_footer ?? ""} /></label></div>{error && <div className="formError">{error}</div>}{message && <div className="formSuccess">{message}</div>}<button className="primaryButton compact" disabled={busy}>{busy ? "Saving…" : "Save settings"}</button></form>;
 }
 
-function titleFor(page: Page) { return ({ dashboard: "Dashboard", branches: "Branches", staff: "Staff Access", settings: "Organization Settings", platform: "Platform Administration" } as const)[page]; }
+function titleFor(page: Page) { return ({ dashboard: "Dashboard", inventory: "Products & Inventory", branches: "Branches", staff: "Staff Access", settings: "Organization Settings", platform: "Platform Administration" } as const)[page]; }
