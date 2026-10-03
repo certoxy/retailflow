@@ -276,14 +276,23 @@ td.negative { color: #8b2525; font-weight: 800; }
 .standalonePlatformHeader h1 { font-size: clamp(2rem, 5vw, 3.7rem); }
 
 @media (max-width: 1080px) {
+  .workspaceLayout { grid-template-columns: 230px 1fr; }
+  .workspaceMain { padding-inline: 28px; }
   .dashboardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .productTiles { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .platformSplit { grid-template-columns: 1fr; }
+  .organizationList { border-right: 0; border-bottom: 1px solid #e5eceb; }
 }
 
 @media (max-width: 760px) {
   .workspaceLayout { grid-template-columns: 1fr; }
-  .sidebar { position: static; height: auto; }
-  .sidebar nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sidebar { position: sticky; z-index: 10; height: auto; padding: 14px; border-right: 0; border-bottom: 1px solid #dce8e6; }
+  .sidebarBrand { margin-bottom: 10px; }
+  .organizationIdentity { margin: 6px 4px 10px; padding-bottom: 10px; }
+  .sidebar nav { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; }
+  .sidebar nav button { flex: 0 0 auto; width: auto; padding: 10px 12px; white-space: nowrap; }
   .sidebarFooter { display: none; }
+  .workspaceMain { padding: 24px 16px 60px; }
   .workspaceHeader { align-items: stretch; flex-direction: column; }
   .branchSelector { min-width: 0; }
   .dashboardGrid, .formGrid { grid-template-columns: 1fr; }
@@ -299,6 +308,18 @@ td.negative { color: #8b2525; font-weight: 800; }
   .posGrid { grid-template-columns: 1fr; }
   .productTiles { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .cartPanel { position: static; }
+  .tableWrap { border-radius: 12px; }
+  th, td { padding: 12px; white-space: nowrap; }
+}
+
+@media (max-width: 480px) {
+  .workspaceHeader h1 { font-size: 1.8rem; }
+  .dashboardGrid, .productTiles { grid-template-columns: 1fr; }
+  .metricCard { padding: 17px; }
+  .authPage { padding: 18px; }
+  .authCard, .panel { padding: 22px; border-radius: 18px; }
+  .cartItem { grid-template-columns: minmax(0,1fr) 58px auto 24px; }
+  .sectionActions .rowActions { flex-wrap: wrap; }
 }
 
 @media print {
