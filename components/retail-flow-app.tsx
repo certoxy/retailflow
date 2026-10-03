@@ -4,6 +4,7 @@ import type { Session } from "@supabase/supabase-js";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { WorkspaceShell } from "@/components/workspace-shell";
+import { PlatformAdministration } from "@/components/platform-administration";
 
 export type Workspace = {
   profile: { email: string; full_name: string | null } | null;
@@ -76,11 +77,10 @@ export function RetailFlowApp() {
   if (workspace.is_platform_administrator && workspace.memberships.length === 0) {
     return (
       <AppShell email={workspace.profile?.email} onSignOut={() => supabase.auth.signOut()}>
-        <DashboardCard
-          eyebrow="Platform administration"
-          title="RetailFlow platform workspace"
-          message="Your platform administrator account is active. Organization controls will be added in the next administration checkpoint."
-        />
+        <section className="standalonePlatform">
+          <div className="standalonePlatformHeader"><p className="eyebrow">Platform administration</p><h1>RetailFlow platform workspace</h1></div>
+          <PlatformAdministration />
+        </section>
       </AppShell>
     );
   }
