@@ -285,6 +285,17 @@ td.negative { color: #8b2525; font-weight: 800; }
 .syncConflict span { flex: 1; }
 .statusPill.pending { color: #315c86; background: #e7f0fa; }
 .offlineReceiptNote { padding: 7px; border-radius: 6px; color: #7b520f; background: #fff3d8; font-size: .75rem; font-weight: 800; }
+.imageChooser { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(150px,.45fr); align-items: end; gap: 12px; }
+.imageChooser > span { align-self: center; color: var(--muted); font-size: .8rem; font-weight: 700; }
+.imageChooser > small { grid-column: 1 / -1; }
+.cameraButton { padding: 12px 15px; border: 1px solid var(--brand); border-radius: 10px; color: var(--brand); background: #f5fcfb; font-weight: 800; }
+.photoReady { padding: 10px 12px; border-radius: 9px; color: #176340; background: #e5f6ed; font-size: .86rem; font-weight: 800; }
+.cameraOverlay { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 18px; background: rgba(5,20,28,.86); }
+.cameraCard { width: min(620px,100%); overflow: hidden; border-radius: 20px; background: #fff; box-shadow: 0 30px 90px rgba(0,0,0,.45); }
+.cameraViewport { display: grid; place-items: center; min-height: 280px; background: #07151b; }
+.cameraViewport video { display: block; width: 100%; max-height: 70dvh; object-fit: contain; }
+.cameraError { max-width: 420px; padding: 28px; color: #fff; text-align: center; }
+.cameraActions { display: flex; justify-content: flex-end; gap: 10px; padding: 16px; }
 .standalonePlatform { max-width: 1240px; margin: 0 auto; }
 .standalonePlatformHeader { margin-bottom: 28px; }
 .standalonePlatformHeader .eyebrow { margin-top: 0; }
@@ -329,6 +340,9 @@ td.negative { color: #8b2525; font-weight: 800; }
   .inlineForm { grid-template-columns: 1fr; }
   .sectionActions { align-items: stretch; flex-direction: column; }
   .connectionBanner, .syncConflict { align-items: stretch; flex-direction: column; }
+  .imageChooser { grid-template-columns: 1fr; }
+  .imageChooser > span { text-align: center; }
+  .imageChooser > small { grid-column: auto; }
   .platformSummary, .platformSplit { grid-template-columns: 1fr; }
   .organizationList { border-right: 0; border-bottom: 1px solid #e5eceb; }
   .moduleGrid, .adminGrantForm { grid-template-columns: 1fr; }
