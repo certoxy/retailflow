@@ -258,6 +258,14 @@ td small { margin-top: 3px; color: var(--muted); }
 .organizationList button > span:first-child { display: grid; gap: 5px; min-width: 0; }
 .organizationList small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .organizationControls { align-content: start; padding: 26px; }
+.subscriptionForm, .manualControls { display: grid; gap: 18px; }
+.manualControls { margin-top: 24px; padding-top: 24px; border-top: 1px solid #dce8e6; }
+.subscriptionBanner { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: -12px 0 24px; padding: 13px 16px; border: 1px solid #cfe2df; border-radius: 13px; color: #24575c; background: #eff9f8; }
+.subscriptionBanner > div { display: grid; gap: 3px; }
+.subscriptionBanner span { color: var(--muted); font-size: .8rem; }
+.subscriptionBanner a { padding: 9px 13px; border-radius: 9px; color: #fff; background: var(--brand); font-size: .82rem; font-weight: 800; text-decoration: none; white-space: nowrap; }
+.subscriptionBanner.past_due { color: #86550d; background: #fff3d8; border-color: #ecd39e; }
+.subscriptionBanner.suspended, .subscriptionBanner.cancelled { color: #8b2525; background: #fdeaea; border-color: #efcaca; }
 .controlHeader { display: flex; align-items: start; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid #e5eceb; }
 .toggleLabel, .moduleGrid label { display: flex; align-items: center; gap: 9px; }
 .toggleLabel input, .moduleGrid input { width: auto; }
@@ -373,6 +381,8 @@ td.negative { color: #8b2525; font-weight: 800; }
   .productTiles { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .platformSplit { grid-template-columns: 1fr; }
   .organizationList { border-right: 0; border-bottom: 1px solid #e5eceb; }
+  .subscriptionBanner { align-items: stretch; flex-direction: column; }
+  .subscriptionBanner a { text-align: center; }
 }
 
 @media (max-width: 760px) {
