@@ -5,6 +5,7 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { WorkspaceShell } from "@/components/workspace-shell";
 import { PlatformAdministration } from "@/components/platform-administration";
+import { BrandLogo } from "@/components/brand-logo";
 
 export type Workspace = {
   profile: { email: string; full_name: string | null } | null;
@@ -152,7 +153,7 @@ function AuthScreen() {
   return (
     <main className="authPage">
       <section className="authIntro">
-        <div className="brand">RetailFlow</div>
+        <BrandLogo className="authBrandLogo" />
         <p className="eyebrow">PAOTechs retail operations platform</p>
         <h1>Sales and inventory, built to flow.</h1>
         <p className="summary">One secure workspace for organizations, branches, staff, products, stock, and daily sales.</p>
@@ -216,7 +217,7 @@ function OrganizationOnboarding({ onCreated }: { onCreated: () => Promise<void> 
 }
 
 function AppShell({ children, email, onSignOut }: { children: React.ReactNode; email?: string; onSignOut: () => void }) {
-  return <main className="appPage"><header><div className="brand">RetailFlow</div><div className="account"><span>{email}</span><button onClick={onSignOut}>Sign out</button></div></header>{children}</main>;
+  return <main className="appPage"><header><BrandLogo className="appHeaderLogo" /><div className="account"><span>{email}</span><button onClick={onSignOut}>Sign out</button></div></header>{children}</main>;
 }
 
 function DashboardCard({ eyebrow, title, message }: { eyebrow: string; title: string; message: string }) {
@@ -228,5 +229,5 @@ function Notice({ title, message, onRetry }: { title: string; message: string; o
 }
 
 function LoadingScreen() {
-  return <main className="loadingPage"><div className="brand">RetailFlow</div><p>Loading your workspace…</p></main>;
+  return <main className="loadingPage"><BrandLogo className="loadingLogo" /><p>Loading your workspace…</p></main>;
 }

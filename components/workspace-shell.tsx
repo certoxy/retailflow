@@ -9,6 +9,7 @@ import { PurchasingWorkspace } from "@/components/purchasing-workspace";
 import { InventoryOperations } from "@/components/inventory-operations";
 import { ReturnsWorkspace } from "@/components/returns-workspace";
 import { supabase } from "@/lib/supabase/client";
+import { BrandLogo } from "@/components/brand-logo";
 
 type Membership = Workspace["memberships"][number];
 type Page = "dashboard" | "pos" | "returns" | "inventory" | "operations" | "purchasing" | "branches" | "staff" | "settings" | "platform";
@@ -82,7 +83,7 @@ export function WorkspaceShell({
   return (
     <main className="workspaceLayout">
       <header className="mobileTopbar">
-        <div className="mobileBrandMark">RF</div>
+        <div className="mobileBrandMark"><BrandLogo iconOnly /></div>
         <div className="mobileIdentity"><strong>{branch?.name ?? membership.organization_name}</strong><span>{membership.organization_name}</span></div>
         <span className="mobileOnline" aria-label="Online" />
         <button className="mobileMenuButton" onClick={() => setMobileMenuOpen(true)} aria-label="Open navigation">☰</button>
@@ -90,7 +91,7 @@ export function WorkspaceShell({
       {mobileMenuOpen && <button className="mobileMenuBackdrop" aria-label="Close navigation" onClick={() => setMobileMenuOpen(false)} />}
       <aside className={`sidebar ${mobileMenuOpen ? "mobileOpen" : ""}`}>
         <button className="mobileMenuClose" onClick={() => setMobileMenuOpen(false)} aria-label="Close navigation">×</button>
-        <div className="brand sidebarBrand">RetailFlow</div>
+        <BrandLogo className="sidebarBrand" />
         <div className="organizationIdentity">
           <strong>{membership.organization_name}</strong>
           <span>{membership.role}</span>

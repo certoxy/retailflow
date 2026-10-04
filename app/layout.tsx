@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   title: "RetailFlow",
   description: "Multi-tenant retail sales and inventory management by PAOTechs",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/brand/retailflow-icon-192.png",
+  },
 };
 
 export default function RootLayout({
