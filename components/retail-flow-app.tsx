@@ -157,6 +157,7 @@ function AuthScreen() {
         <p className="eyebrow">PAOTechs retail operations platform</p>
         <h1>Sales and inventory, built to flow.</h1>
         <p className="summary">One secure workspace for organizations, branches, staff, products, stock, and daily sales.</p>
+        <a className="installAppLink" href="/download">Install the RetailFlow mobile app →</a>
       </section>
       <section className="authCard">
         <div className="modeTabs" role="tablist">
