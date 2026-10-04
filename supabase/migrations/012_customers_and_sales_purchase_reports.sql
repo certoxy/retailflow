@@ -1,6 +1,6 @@
 begin;
 
-create table public.customers (
+create table if not exists public.customers (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations(id) on delete cascade,
   name text not null check (length(trim(name)) > 0),
@@ -14,12 +14,13 @@ create table public.customers (
 );
 
 alter table public.customers enable row level security;
+drop policy if exists customers_tenant_read on public.customers;
 create policy customers_tenant_read on public.customers for select to authenticated
 using (public.current_user_belongs_to_organization(organization_id) or public.current_user_is_platform_administrator());
 
-alter table public.sales add column customer_id uuid references public.customers(id) on delete set null;
-create index customers_organization_name_idx on public.customers(organization_id, name);
-create index sales_customer_idx on public.sales(customer_id);
+alter table public.sales add column if not exists customer_id uuid references public.customers(id) on delete set null;
+create index if not exists customers_organization_name_idx on public.customers(organization_id, name);
+create index if not exists sales_customer_idx on public.sales(customer_id);
 
 create or replace function public.create_customer(p_organization_id uuid,p_name text,p_phone text default null,p_email text default null,p_address text default null)
 returns jsonb language plpgsql security definer set search_path=public as $$
@@ -47,8 +48,8 @@ begin
   );
 end; $$;
 
-drop function public.create_pos_sale(uuid,uuid,jsonb,text,numeric,uuid);
-create function public.create_pos_sale(p_organization_id uuid,p_branch_id uuid,p_items jsonb,p_payment_method text,p_amount_tendered numeric,p_idempotency_key uuid,p_customer_id uuid default null)
+drop function if exists public.create_pos_sale(uuid,uuid,jsonb,text,numeric,uuid);
+create or replace function public.create_pos_sale(p_organization_id uuid,p_branch_id uuid,p_items jsonb,p_payment_method text,p_amount_tendered numeric,p_idempotency_key uuid,p_customer_id uuid default null)
 returns jsonb language plpgsql security definer set search_path=public as $$
 declare item jsonb; product_record record; sale_id uuid; subtotal numeric:=0; line_total numeric; receipt_counter bigint; receipt text; result jsonb;
 begin
