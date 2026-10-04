@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   description: "Multi-tenant retail sales and inventory management by PAOTechs",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/favicon.png",
-    apple: "/brand/retailflow-icon-192.png",
+    icon: "/favicon.png?v=2",
+    apple: "/brand/retailflow-icon-192.png?v=2",
   },
 };
 
