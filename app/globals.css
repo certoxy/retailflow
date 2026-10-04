@@ -251,6 +251,7 @@ td.negative { color: #8b2525; font-weight: 800; }
 .productSearch { margin-bottom: 18px; }
 .productTiles { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
 .productTiles button { display: grid; gap: 6px; padding: 16px; border: 1px solid #d4e3e0; border-radius: 12px; color: var(--ink); background: #fff; text-align: left; }
+.productTiles button > img { width: 100%; aspect-ratio: 4 / 3; margin-bottom: 5px; border-radius: 9px; object-fit: cover; background: #edf4f3; }
 .productTiles button:hover { border-color: var(--brand); background: #f7fcfb; }
 .productTiles button:disabled { cursor: not-allowed; opacity: .48; }
 .productTiles span, .productTiles small { color: var(--muted); }
@@ -271,6 +272,30 @@ td.negative { color: #8b2525; font-weight: 800; }
 .receiptPrint h2, .receiptPrint p { margin: 0; }
 .receiptPrint div { display: flex; justify-content: space-between; }
 .receiptCard > .rowActions { justify-content: flex-end; margin-top: 22px; }
+.productIdentity { display: flex; align-items: center; gap: 11px; min-width: 190px; }
+.productIdentity > img, .productImagePlaceholder { flex: 0 0 44px; width: 44px; height: 44px; border-radius: 9px; object-fit: cover; }
+.productImagePlaceholder { display: grid; place-items: center; color: var(--brand); background: var(--brand-soft); font-weight: 900; }
+.connectionBanner { display: flex; align-items: center; gap: 14px; padding: 12px 15px; border: 1px solid #cfe2df; border-radius: 12px; font-size: .84rem; }
+.connectionBanner span { font-weight: 850; }
+.connectionBanner strong { flex: 1; font-weight: 650; }
+.connectionBanner.online { color: #176340; background: #e5f6ed; }
+.connectionBanner.offline { color: #7b520f; background: #fff3d8; border-color: #ecd39e; }
+.connectionBanner button, .syncConflict button { padding: 7px 10px; border: 1px solid currentColor; border-radius: 8px; color: inherit; background: rgba(255,255,255,.65); font-weight: 800; }
+.syncConflict { display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-radius: 12px; color: #8b2525; background: #fdeaea; }
+.syncConflict span { flex: 1; }
+.statusPill.pending { color: #315c86; background: #e7f0fa; }
+.offlineReceiptNote { padding: 7px; border-radius: 6px; color: #7b520f; background: #fff3d8; font-size: .75rem; font-weight: 800; }
+.imageChooser { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(150px,.45fr); align-items: end; gap: 12px; }
+.imageChooser > span { align-self: center; color: var(--muted); font-size: .8rem; font-weight: 700; }
+.imageChooser > small { grid-column: 1 / -1; }
+.cameraButton { padding: 12px 15px; border: 1px solid var(--brand); border-radius: 10px; color: var(--brand); background: #f5fcfb; font-weight: 800; }
+.photoReady { padding: 10px 12px; border-radius: 9px; color: #176340; background: #e5f6ed; font-size: .86rem; font-weight: 800; }
+.cameraOverlay { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 18px; background: rgba(5,20,28,.86); }
+.cameraCard { width: min(620px,100%); overflow: hidden; border-radius: 20px; background: #fff; box-shadow: 0 30px 90px rgba(0,0,0,.45); }
+.cameraViewport { display: grid; place-items: center; min-height: 280px; background: #07151b; }
+.cameraViewport video { display: block; width: 100%; max-height: 70dvh; object-fit: contain; }
+.cameraError { max-width: 420px; padding: 28px; color: #fff; text-align: center; }
+.cameraActions { display: flex; justify-content: flex-end; gap: 10px; padding: 16px; }
 .standalonePlatform { max-width: 1240px; margin: 0 auto; }
 .standalonePlatformHeader { margin-bottom: 28px; }
 .standalonePlatformHeader .eyebrow { margin-top: 0; }
@@ -314,6 +339,10 @@ td.negative { color: #8b2525; font-weight: 800; }
   .fullWidth { grid-column: auto; }
   .inlineForm { grid-template-columns: 1fr; }
   .sectionActions { align-items: stretch; flex-direction: column; }
+  .connectionBanner, .syncConflict { align-items: stretch; flex-direction: column; }
+  .imageChooser { grid-template-columns: 1fr; }
+  .imageChooser > span { text-align: center; }
+  .imageChooser > small { grid-column: auto; }
   .platformSummary, .platformSplit { grid-template-columns: 1fr; }
   .organizationList { border-right: 0; border-bottom: 1px solid #e5eceb; }
   .moduleGrid, .adminGrantForm { grid-template-columns: 1fr; }

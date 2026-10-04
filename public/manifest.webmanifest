@@ -1,0 +1,9 @@
+{
+  "name": "RetailFlow",
+  "short_name": "RetailFlow",
+  "description": "Retail sales and inventory management by PAOTechs",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f3f8f7",
+  "theme_color": "#0d3b55"
+}

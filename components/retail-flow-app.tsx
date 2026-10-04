@@ -46,6 +46,9 @@ export function RetailFlowApp() {
   }, []);
 
   useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      void navigator.serviceWorker.register("/sw.js");
+    }
     const urlToken = new URLSearchParams(window.location.search).get("invite") ?? "";
     const savedToken = window.localStorage.getItem("retailflow-invite") ?? "";
     const nextToken = urlToken || savedToken;
