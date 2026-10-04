@@ -10,6 +10,7 @@ import { InventoryOperations } from "@/components/inventory-operations";
 import { ReturnsWorkspace } from "@/components/returns-workspace";
 import { supabase } from "@/lib/supabase/client";
 import { BrandLogo } from "@/components/brand-logo";
+import { SalesPurchaseReports } from "@/components/sales-purchase-reports";
 
 type Membership = Workspace["memberships"][number];
 type Page = "dashboard" | "pos" | "returns" | "inventory" | "operations" | "purchasing" | "branches" | "staff" | "settings" | "platform";
@@ -109,7 +110,7 @@ export function WorkspaceShell({
         </header>
         {error && <div className="formError pageMessage">{error} <button onClick={load}>Retry</button></div>}
         {loading && <div className="contentLoading">Loading workspace…</div>}
-        {!loading && data && page === "dashboard" && <Dashboard data={data} branchName={branch?.name ?? "Main Branch"} />}
+        {!loading && data && page === "dashboard" && <Dashboard data={data} branchName={branch?.name ?? "Main Branch"} organizationId={data.organization.id} branchId={branchId} />}
         {!loading && data && page === "pos" && <PointOfSale organizationId={data.organization.id} branchId={branchId} branchName={branch?.name ?? "Branch"} canVoid={canManageInventory} />}
         {!loading && data && page === "returns" && <ReturnsWorkspace organizationId={data.organization.id} branchId={branchId} />}
         {!loading && data && page === "inventory" && <InventoryManagement organizationId={data.organization.id} branches={data.branches} />}
@@ -124,12 +125,8 @@ export function WorkspaceShell({
   );
 }
 
-function Dashboard({ data, branchName }: { data: AdminData; branchName: string }) {
-  const cards = [
-    ["Active branch", branchName], ["Branches", String(data.branches.filter((b) => b.active).length)],
-    ["Active staff", String(data.members.filter((m) => m.active).length)], ["Today’s sales", "Coming next"],
-  ];
-  return <div className="dashboardGrid">{cards.map(([label, value]) => <article className="metricCard" key={label}><span>{label}</span><strong>{value}</strong></article>)}<article className="welcomeCard"><p className="eyebrow">Workspace ready</p><h2>Your RetailFlow administration foundation is active.</h2><p>Manage organization information, branches, and staff access here. Products, inventory, and point of sale will follow in controlled releases.</p></article></div>;
+function Dashboard({ data, branchName, organizationId, branchId }: { data: AdminData; branchName: string; organizationId:string; branchId:string }) {
+  return <div className="contentStack"><div className="dashboardContext"><span>Reporting branch</span><strong>{branchName}</strong><small>{data.branches.filter((b)=>b.active).length} active branches · {data.members.filter((m)=>m.active).length} active staff</small></div><SalesPurchaseReports organizationId={organizationId} branchId={branchId}/></div>;
 }
 
 function Branches({ data, onChanged }: { data: AdminData; onChanged: () => Promise<void> }) {
