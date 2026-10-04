@@ -6,13 +6,15 @@ import { supabase } from "@/lib/supabase/client";
 const moduleLabels: Record<string, string> = {
   dashboard: "Dashboard", branches: "Branches", staff: "Staff Access",
   products: "Products", inventory: "Inventory", pos: "Point of Sale",
-  purchasing: "Purchasing", expenses: "Expenses", reports: "Reports",
+  returns:"Returns & Refunds",operations:"Inventory Operations",purchasing: "Purchasing", expenses: "Expenses", reports: "Reports",
 };
 
 type PlatformData = {
   organizations: Array<{
     id: string; name: string; slug: string; active: boolean; user_limit: number;
-    member_count: number; branch_count: number; enabled_modules: Record<string, boolean>;
+    member_count: number; branch_count: number; branch_limit:number; enabled_modules: Record<string, boolean>;
+    subscription_plan:string;billing_cycle:string;subscription_status:string;trial_ends_at:string|null;
+    next_billing_at:string|null;subscription_price:number|null;
     created_at: string;
   }>;
   platform_administrators: Array<{
@@ -61,6 +63,8 @@ export function PlatformAdministration() {
     setBusy(false);
   }
 
+  async function saveSubscription(event:FormEvent<HTMLFormElement>){event.preventDefault();if(!selected)return;setBusy(true);setError("");setMessage("");const form=new FormData(event.currentTarget);const{error:rpcError}=await supabase.rpc("update_platform_organization_subscription",{p_organization_id:selected.id,p_plan:String(form.get("plan")),p_billing_cycle:String(form.get("billingCycle")),p_status:String(form.get("subscriptionStatus")),p_trial_ends_at:form.get("trialEndsAt")?new Date(String(form.get("trialEndsAt"))).toISOString():null,p_next_billing_at:form.get("nextBillingAt")?new Date(String(form.get("nextBillingAt"))).toISOString():null,p_subscription_price:form.get("subscriptionPrice")===""?null:Number(form.get("subscriptionPrice"))});if(rpcError)setError(rpcError.message);else{setMessage(`${selected.name} subscription saved.`);await load();}setBusy(false);}
+
   async function grant(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setError(""); setMessage("");
     const form = new FormData(event.currentTarget);
@@ -93,13 +97,13 @@ export function PlatformAdministration() {
     <section className="adminCard">
       <div className="sectionActions"><div><h2>Organizations</h2><p>Control access, user limits, and enabled RetailFlow modules.</p></div></div>
       <div className="platformSplit">
-        <div className="organizationList">{data.organizations.map((organization) => <button key={organization.id} className={selectedId === organization.id ? "selected" : ""} onClick={() => { setSelectedId(organization.id); setMessage(""); setError(""); }}><span><strong>{organization.name}</strong><small>{organization.member_count} of {organization.user_limit} users · {organization.branch_count} branches</small></span><span className={organization.active ? "statusPill" : "statusPill inactive"}>{organization.active ? "Active" : "Suspended"}</span></button>)}</div>
-        {selected && <form className="organizationControls" key={selected.id} onSubmit={saveOrganization}>
+        <div className="organizationList">{data.organizations.map((organization) => <button key={organization.id} className={selectedId === organization.id ? "selected" : ""} onClick={() => { setSelectedId(organization.id); setMessage(""); setError(""); }}><span><strong>{organization.name}</strong><small>{organization.member_count}/{organization.user_limit} users · {organization.branch_count}/{organization.branch_limit} branches</small><small className="capitalize">{organization.subscription_plan} · {organization.subscription_status.replace("_"," ")}</small></span><span className={organization.active ? "statusPill" : "statusPill inactive"}>{organization.active ? "Active" : "Suspended"}</span></button>)}</div>
+        {selected && <div className="organizationControls" key={selected.id}><form className="subscriptionForm" onSubmit={saveSubscription}><div className="controlHeader"><div><h3>{selected.name}</h3><small>Subscription and billing</small></div><span className={`statusPill ${selected.subscription_status==="past_due"?"warning":selected.subscription_status==="active"||selected.subscription_status==="trial"?"":"inactive"}`}>{selected.subscription_status.replace("_"," ")}</span></div><div className="formGrid"><label>Plan<select name="plan" defaultValue={selected.subscription_plan}><option value="starter">Starter — ₱799/mo</option><option value="growth">Growth — ₱1,499/mo</option><option value="business">Business — ₱2,999/mo</option><option value="enterprise">Enterprise — Custom</option></select></label><label>Billing cycle<select name="billingCycle" defaultValue={selected.billing_cycle}><option value="monthly">Monthly</option><option value="annual">Annual</option><option value="complimentary">Complimentary</option></select></label><label>Status<select name="subscriptionStatus" defaultValue={selected.subscription_status}><option value="trial">Trial</option><option value="active">Active</option><option value="past_due">Past due</option><option value="suspended">Suspended</option><option value="cancelled">Cancelled</option></select></label><label>Agreed price<input name="subscriptionPrice" type="number" min="0" step="0.01" defaultValue={selected.subscription_price??""} placeholder="Plan price"/></label><label>Trial ends<input name="trialEndsAt" type="date" defaultValue={selected.trial_ends_at?.slice(0,10)??""}/></label><label>Next billing date<input name="nextBillingAt" type="date" defaultValue={selected.next_billing_at?.slice(0,10)??""}/></label></div><button className="primaryButton compact" disabled={busy}>{busy?"Saving…":"Save subscription"}</button></form><form className="manualControls" onSubmit={saveOrganization}>
           <div className="controlHeader"><div><h3>{selected.name}</h3><small>{selected.slug}</small></div><label className="toggleLabel"><input type="checkbox" name="active" defaultChecked={selected.active} />Organization active</label></div>
           <label>User limit<input name="userLimit" type="number" min="1" max="10000" required defaultValue={selected.user_limit} /><small>{selected.member_count} active user{selected.member_count === 1 ? "" : "s"} currently consume seats.</small></label>
           <fieldset><legend>Enabled modules</legend><div className="moduleGrid">{Object.entries(moduleLabels).map(([key, label]) => <label key={key}><input type="checkbox" name={`module-${key}`} defaultChecked={selected.enabled_modules[key] !== false} />{label}</label>)}</div></fieldset>
-          <button className="primaryButton compact" disabled={busy}>{busy ? "Saving…" : "Save organization controls"}</button>
-        </form>}
+          <button className="secondaryButton" disabled={busy}>{busy ? "Saving…" : "Save manual overrides"}</button>
+        </form></div>}
       </div>
     </section>
 

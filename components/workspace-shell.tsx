@@ -19,6 +19,7 @@ type AdminData = {
     id: string; name: string; slug: string; business_address: string | null;
     phone: string | null; email: string | null; website: string | null;
     receipt_footer: string | null; enabled_modules: Record<string, boolean>;
+    subscription_plan:string;billing_cycle:string;subscription_status:string;trial_ends_at:string|null;next_billing_at:string|null;
   };
   branches: Array<{ id: string; name: string; code: string; active: boolean }>;
   members: Array<{
@@ -73,9 +74,9 @@ export function WorkspaceShell({
   const visibleBranches = isOrganizationAdmin || isPlatformAdministrator ? (data?.branches ?? membership.branches) : membership.branches;
   const visibleNav = navItems.filter((item) => {
     if (item.id === "pos") return data?.organization.enabled_modules.pos !== false;
-    if (item.id === "returns") return canManageInventory && data?.organization.enabled_modules.pos !== false;
+    if (item.id === "returns") return canManageInventory && data?.organization.enabled_modules.pos !== false && data?.organization.enabled_modules.returns !== false;
     if (item.id === "inventory") return canManageInventory && data?.organization.enabled_modules.products !== false && data?.organization.enabled_modules.inventory !== false;
-    if (item.id === "operations") return canManageInventory && data?.organization.enabled_modules.inventory !== false;
+    if (item.id === "operations") return canManageInventory && data?.organization.enabled_modules.inventory !== false && data?.organization.enabled_modules.operations !== false;
     if (item.id === "purchasing") return canManageInventory && data?.organization.enabled_modules.purchasing !== false;
     if (["branches", "staff", "settings"].includes(item.id)) return isOrganizationAdmin;
     return true;
@@ -108,6 +109,7 @@ export function WorkspaceShell({
           <div><p className="eyebrow">{membership.organization_name}</p><h1>{titleFor(page)}</h1></div>
           <label className="branchSelector">Active branch<select value={branchId} onChange={(event) => setBranchId(event.target.value)}>{visibleBranches.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
         </header>
+        {!loading&&data&&<SubscriptionBanner organization={data.organization}/>}
         {error && <div className="formError pageMessage">{error} <button onClick={load}>Retry</button></div>}
         {loading && <div className="contentLoading">Loading workspace…</div>}
         {!loading && data && page === "dashboard" && <Dashboard data={data} branchName={branch?.name ?? "Main Branch"} organizationId={data.organization.id} branchId={branchId} />}
@@ -124,6 +126,8 @@ export function WorkspaceShell({
     </main>
   );
 }
+
+function SubscriptionBanner({organization}:{organization:AdminData["organization"]}){const trialDays=organization.trial_ends_at?Math.max(0,Math.ceil((new Date(organization.trial_ends_at).getTime()-Date.now())/86400000)):null;return <div className={`subscriptionBanner ${organization.subscription_status}`}><div><strong className="capitalize">{organization.subscription_plan} plan · {organization.subscription_status.replace("_"," ")}</strong><span>{organization.subscription_status==="trial"?`${trialDays} trial day${trialDays===1?"":"s"} remaining`:organization.next_billing_at?`Next billing: ${new Date(organization.next_billing_at).toLocaleDateString()}`:organization.billing_cycle==="complimentary"?"Complimentary account":"Subscription managed by PAOTechs"}</span></div>{["trial","past_due"].includes(organization.subscription_status)&&<a href="mailto:certoxy@gmail.com?subject=RetailFlow%20plan%20upgrade">Upgrade plan</a>}</div>}
 
 function Dashboard({ data, branchName, organizationId, branchId }: { data: AdminData; branchName: string; organizationId:string; branchId:string }) {
   return <div className="contentStack"><div className="dashboardContext"><span>Reporting branch</span><strong>{branchName}</strong><small>{data.branches.filter((b)=>b.active).length} active branches · {data.members.filter((m)=>m.active).length} active staff</small></div><SalesPurchaseReports organizationId={organizationId} branchId={branchId}/></div>;
