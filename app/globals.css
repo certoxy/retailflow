@@ -346,6 +346,8 @@ td.negative { color: #8b2525; font-weight: 800; }
 .dashboardContext strong { font-size: 1.25rem; }
 .reportControls { display: flex; align-items: end; justify-content: space-between; gap: 18px; }
 .reportTabs { display: flex; min-width: 0; overflow-x: auto; }
+.reportControlActions { display: flex; align-items: end; gap: 12px; }
+.exportButton { white-space: nowrap; }
 .customDates { display: flex; gap: 10px; }
 .customDates label { min-width: 145px; }
 .reportSummary { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; }
@@ -410,6 +412,8 @@ td.negative { color: #8b2525; font-weight: 800; }
   .platformSummary, .platformSplit { grid-template-columns: 1fr; }
   .reportSummary, .reportTables { grid-template-columns: 1fr; }
   .reportControls { align-items: stretch; flex-direction: column; }
+  .reportControlActions { align-items: stretch; flex-direction: column; }
+  .exportButton { width: 100%; }
   .customDates { display: grid; grid-template-columns: 1fr 1fr; }
   .reportChart > .sectionActions { align-items: flex-start; flex-direction: column; }
   .customerPicker > div:first-child { grid-template-columns: 1fr; }
