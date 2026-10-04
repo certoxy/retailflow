@@ -11,9 +11,10 @@ import { ReturnsWorkspace } from "@/components/returns-workspace";
 import { supabase } from "@/lib/supabase/client";
 import { BrandLogo } from "@/components/brand-logo";
 import { SalesPurchaseReports } from "@/components/sales-purchase-reports";
+import { CustomerLoyalty } from "@/components/customer-loyalty";
 
 type Membership = Workspace["memberships"][number];
-type Page = "dashboard" | "pos" | "returns" | "inventory" | "operations" | "purchasing" | "branches" | "staff" | "settings" | "platform";
+type Page = "dashboard" | "pos" | "customers" | "returns" | "inventory" | "operations" | "purchasing" | "branches" | "staff" | "settings" | "platform";
 type AdminData = {
   organization: {
     id: string; name: string; slug: string; business_address: string | null;
@@ -32,6 +33,7 @@ type AdminData = {
 const navItems: Array<{ id: Page; label: string; icon: string }> = [
   { id: "dashboard", label: "Dashboard", icon: "▦" },
   { id: "pos", label: "Order", icon: "▣" },
+  { id: "customers", label: "Customers & Loyalty", icon: "◎" },
   { id: "returns", label: "Returns & Refunds", icon: "↩" },
   { id: "inventory", label: "Products & Inventory", icon: "▤" },
   { id: "operations", label: "Inventory Operations", icon: "⇄" },
@@ -74,6 +76,7 @@ export function WorkspaceShell({
   const visibleBranches = isOrganizationAdmin || isPlatformAdministrator ? (data?.branches ?? membership.branches) : membership.branches;
   const visibleNav = navItems.filter((item) => {
     if (item.id === "pos") return data?.organization.enabled_modules.pos !== false;
+    if (item.id === "customers") return canManageInventory;
     if (item.id === "returns") return canManageInventory && data?.organization.enabled_modules.pos !== false && data?.organization.enabled_modules.returns !== false;
     if (item.id === "inventory") return canManageInventory && data?.organization.enabled_modules.products !== false && data?.organization.enabled_modules.inventory !== false;
     if (item.id === "operations") return canManageInventory && data?.organization.enabled_modules.inventory !== false && data?.organization.enabled_modules.operations !== false;
@@ -114,6 +117,7 @@ export function WorkspaceShell({
         {loading && <div className="contentLoading">Loading workspace…</div>}
         {!loading && data && page === "dashboard" && <Dashboard data={data} branchName={branch?.name ?? "Main Branch"} organizationId={data.organization.id} branchId={branchId} />}
         {!loading && data && page === "pos" && <PointOfSale organizationId={data.organization.id} branchId={branchId} branchName={branch?.name ?? "Branch"} canVoid={canManageInventory} />}
+        {!loading && data && page === "customers" && <CustomerLoyalty organizationId={data.organization.id} isAdmin={isOrganizationAdmin}/>}
         {!loading && data && page === "returns" && <ReturnsWorkspace organizationId={data.organization.id} branchId={branchId} />}
         {!loading && data && page === "inventory" && <InventoryManagement organizationId={data.organization.id} branches={data.branches} />}
         {!loading && data && page === "operations" && <InventoryOperations organizationId={data.organization.id} branches={data.branches.filter((item) => item.active)} />}
@@ -158,4 +162,4 @@ function Settings({ organization, onChanged }: { organization: AdminData["organi
   return <form className="settingsForm" onSubmit={submit}><div className="formGrid"><label>Organization name<input name="name" required defaultValue={organization.name} /></label><label>Organization code<input disabled value={organization.slug} /></label><label>Business email<input name="email" type="email" defaultValue={organization.email ?? ""} /></label><label>Phone<input name="phone" defaultValue={organization.phone ?? ""} /></label><label className="fullWidth">Business address<input name="address" defaultValue={organization.business_address ?? ""} /></label><label>Website<input name="website" type="url" defaultValue={organization.website ?? ""} /></label><label>Receipt footer<input name="receiptFooter" defaultValue={organization.receipt_footer ?? ""} /></label></div>{error && <div className="formError">{error}</div>}{message && <div className="formSuccess">{message}</div>}<button className="primaryButton compact" disabled={busy}>{busy ? "Saving…" : "Save settings"}</button></form>;
 }
 
-function titleFor(page: Page) { return ({ dashboard: "Dashboard", pos: "Order", returns: "Returns & Refunds", inventory: "Products & Inventory", operations: "Inventory Operations", purchasing: "Purchasing", branches: "Branches", staff: "Staff Access", settings: "Organization Settings", platform: "Platform Administration" } as const)[page]; }
+function titleFor(page: Page) { return ({ dashboard: "Dashboard", pos: "Order", customers:"Customers & Loyalty", returns: "Returns & Refunds", inventory: "Products & Inventory", operations: "Inventory Operations", purchasing: "Purchasing", branches: "Branches", staff: "Staff Access", settings: "Organization Settings", platform: "Platform Administration" } as const)[page]; }
