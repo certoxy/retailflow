@@ -258,6 +258,21 @@ td small { margin-top: 3px; color: var(--muted); }
 .organizationList button > span:first-child { display: grid; gap: 5px; min-width: 0; }
 .organizationList small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .organizationControls { align-content: start; padding: 26px; }
+.usageMonitor { display: grid; gap: 18px; margin-bottom: 26px; padding-bottom: 26px; border-bottom: 1px solid #dce8e6; }
+.usageLimits { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.usageBar { display: grid; gap: 9px; }
+.usageBar > div:first-child { display: flex; justify-content: space-between; gap: 12px; color: #31575e; font-size: .82rem; }
+.usageBar span { color: var(--muted); }
+.usageTrack { height: 9px; overflow: hidden; border-radius: 999px; background: #e8efee; }
+.usageTrack i { display: block; height: 100%; border-radius: inherit; background: #149b98; }
+.usageTrack i.warning { background: #e2a231; }
+.usageTrack i.critical { background: #ca5252; }
+.usageMetrics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.usageMetrics article { display: grid; gap: 5px; padding: 15px; border: 1px solid #dce8e6; border-radius: 12px; background: #f8fbfa; }
+.usageMetrics span, .usageMetrics small { color: var(--muted); font-size: .76rem; }
+.usageMetrics strong { font-size: 1.18rem; }
+.usageActivity { margin: 0; color: var(--muted); font-size: .8rem; }
+.usageActivity strong { color: #31575e; }
 .subscriptionForm, .manualControls { display: grid; gap: 18px; }
 .manualControls { margin-top: 24px; padding-top: 24px; border-top: 1px solid #dce8e6; }
 .subscriptionBanner { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: -12px 0 24px; padding: 13px 16px; border: 1px solid #cfe2df; border-radius: 13px; color: #24575c; background: #eff9f8; }
@@ -429,6 +444,7 @@ td.negative { color: #8b2525; font-weight: 800; }
   .customerPicker > div:first-child { grid-template-columns: 1fr; }
   .organizationList { border-right: 0; border-bottom: 1px solid #e5eceb; }
   .moduleGrid, .adminGrantForm { grid-template-columns: 1fr; }
+  .usageLimits, .usageMetrics { grid-template-columns: 1fr; }
   .inventoryToolbar { grid-template-columns: 1fr; }
   .inventoryTabs { min-width: 0; }
   .categoryForm, .adjustmentForm { grid-template-columns: 1fr; }
