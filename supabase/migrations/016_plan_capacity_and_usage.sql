@@ -3,13 +3,13 @@ begin;
 alter table public.organizations
   add column if not exists customer_limit integer not null default 2000 check(customer_limit between 1 and 10000000),
   add column if not exists product_limit integer not null default 500 check(product_limit between 1 and 10000000),
-  add column if not exists monthly_transaction_limit integer not null default 1000 check(monthly_transaction_limit between 1 and 100000000),
+  add column if not exists monthly_transaction_limit integer not null default 500 check(monthly_transaction_limit between 1 and 100000000),
   add column if not exists storage_limit_mb integer not null default 1024 check(storage_limit_mb between 1 and 1000000);
 
 update public.organizations set
   customer_limit=case subscription_plan when 'starter' then 2000 when 'growth' then 10000 when 'business' then 50000 else customer_limit end,
   product_limit=case subscription_plan when 'starter' then 500 when 'growth' then 2500 when 'business' then 10000 else product_limit end,
-  monthly_transaction_limit=case subscription_plan when 'starter' then 1000 when 'growth' then 5000 when 'business' then 25000 else monthly_transaction_limit end,
+  monthly_transaction_limit=case subscription_plan when 'starter' then 500 when 'growth' then 2500 when 'business' then 12500 else monthly_transaction_limit end,
   storage_limit_mb=case subscription_plan when 'starter' then 1024 when 'growth' then 5120 when 'business' then 20480 else storage_limit_mb end;
 
 create or replace function public.get_platform_admin_dashboard()
@@ -51,9 +51,9 @@ begin
   if p_billing_cycle not in('monthly','annual','complimentary') then raise exception 'Invalid billing cycle'; end if;
   if p_status not in('trial','active','past_due','suspended','cancelled') then raise exception 'Invalid subscription status'; end if;
   if p_subscription_price is not null and p_subscription_price<0 then raise exception 'Subscription price cannot be negative'; end if;
-  if p_plan='starter' then plan_users:=3;plan_branches:=1;plan_customers:=2000;plan_products:=500;plan_transactions:=1000;plan_storage:=1024;plan_modules:='{"dashboard":true,"branches":true,"staff":true,"products":true,"inventory":true,"pos":true,"returns":true,"operations":false,"purchasing":false,"expenses":false,"reports":true}'::jsonb;
-  elsif p_plan='growth' then plan_users:=10;plan_branches:=3;plan_customers:=10000;plan_products:=2500;plan_transactions:=5000;plan_storage:=5120;plan_modules:='{"dashboard":true,"branches":true,"staff":true,"products":true,"inventory":true,"pos":true,"returns":true,"operations":true,"purchasing":true,"expenses":true,"reports":true}'::jsonb;
-  elsif p_plan='business' then plan_users:=30;plan_branches:=10;plan_customers:=50000;plan_products:=10000;plan_transactions:=25000;plan_storage:=20480;plan_modules:='{"dashboard":true,"branches":true,"staff":true,"products":true,"inventory":true,"pos":true,"returns":true,"operations":true,"purchasing":true,"expenses":true,"reports":true}'::jsonb;
+  if p_plan='starter' then plan_users:=3;plan_branches:=1;plan_customers:=2000;plan_products:=500;plan_transactions:=500;plan_storage:=1024;plan_modules:='{"dashboard":true,"branches":true,"staff":true,"products":true,"inventory":true,"pos":true,"returns":true,"operations":false,"purchasing":false,"expenses":false,"reports":true}'::jsonb;
+  elsif p_plan='growth' then plan_users:=10;plan_branches:=3;plan_customers:=10000;plan_products:=2500;plan_transactions:=2500;plan_storage:=5120;plan_modules:='{"dashboard":true,"branches":true,"staff":true,"products":true,"inventory":true,"pos":true,"returns":true,"operations":true,"purchasing":true,"expenses":true,"reports":true}'::jsonb;
+  elsif p_plan='business' then plan_users:=30;plan_branches:=10;plan_customers:=50000;plan_products:=10000;plan_transactions:=12500;plan_storage:=20480;plan_modules:='{"dashboard":true,"branches":true,"staff":true,"products":true,"inventory":true,"pos":true,"returns":true,"operations":true,"purchasing":true,"expenses":true,"reports":true}'::jsonb;
   else select user_limit,branch_limit,customer_limit,product_limit,monthly_transaction_limit,storage_limit_mb,enabled_modules into plan_users,plan_branches,plan_customers,plan_products,plan_transactions,plan_storage,plan_modules from public.organizations where id=p_organization_id;
   end if;
   effective_price:=p_subscription_price;
