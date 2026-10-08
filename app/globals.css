@@ -147,6 +147,14 @@ small { color: var(--muted); font-weight: 500; }
 .panel h1 { font-size: clamp(2.25rem, 6vw, 4.25rem); }
 .onboardingPanel { max-width: 760px; }
 .onboardingForm { max-width: 520px; margin-top: 30px; }
+.businessTypePicker { margin: 0; padding: 18px; border: 1px solid #d4e3e0; border-radius: 14px; }
+.businessTypePicker legend { padding: 0 7px; color: #31575e; font-weight: 800; }
+.businessTypeGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.businessTypeGrid label { display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 14px; border: 1px solid #dce8e6; border-radius: 11px; background: #f8fbfa; cursor: pointer; }
+.businessTypeGrid label:has(input:checked) { border-color: var(--brand); background: #eaf8f6; box-shadow: 0 0 0 2px rgba(20,155,152,.1); }
+.businessTypeGrid input { width: auto; margin-top: 3px; }
+.businessTypeGrid span { display: grid; gap: 4px; }
+.businessTypeGrid small { color: var(--muted); line-height: 1.35; }
 .loadingPage { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 16px; color: var(--muted); }
 
 .installPage { min-height: 100vh; padding: clamp(24px, 5vw, 70px); }
@@ -299,6 +307,15 @@ td small { margin-top: 3px; color: var(--muted); }
 .inviteForm legend { padding: 0 7px; color: #31575e; font-size: .9rem; font-weight: 800; }
 .inventoryToolbar { display: grid; grid-template-columns: auto minmax(180px, .4fr) auto; align-items: end; gap: 16px; }
 .inventoryTabs { min-width: 290px; }
+.productFilters { display: grid; grid-template-columns: minmax(220px,1fr) minmax(170px,.45fr) minmax(150px,.35fr) auto; align-items: end; gap: 12px; padding: 16px 18px; border: 1px solid #d4e3e0; border-radius: 14px; background: #f8fbfa; }
+.productFilterSummary { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-height: 44px; color: var(--muted); font-size: .82rem; font-weight: 750; white-space: nowrap; }
+.batchSummary { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+.batchSummary article { display: grid; gap: 6px; padding: 18px; border: 1px solid #d4e3e0; border-radius: 14px; background: #fff; }
+.batchSummary span { color: var(--muted); font-size: .8rem; font-weight: 750; }
+.batchSummary strong { color: var(--brand); font-size: 1.55rem; }
+.purchaseReceiptForm fieldset { padding: 18px; border: 1px solid #d4e3e0; border-radius: 12px; }
+.purchaseReceiptForm legend { padding: 0 7px; color: var(--ink); font-weight: 850; }
+.zoningGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .inventoryForm { padding: 24px; border: 1px solid #d4e3e0; border-radius: 17px; background: #fff; box-shadow: 0 10px 34px rgba(23,74,77,.055); }
 .categoryForm { grid-template-columns: 1fr auto; }
 .adjustmentForm { grid-template-columns: 180px 1fr auto; }
@@ -438,7 +455,7 @@ td.negative { color: #8b2525; font-weight: 800; }
   .imageChooser > span { text-align: center; }
   .imageChooser > small { grid-column: auto; }
   .platformSummary, .platformSplit { grid-template-columns: 1fr; }
-  .reportSummary, .reportTables { grid-template-columns: 1fr; }
+  .reportSummary, .reportTables, .zoningGrid { grid-template-columns: 1fr; }
   .reportControls { align-items: stretch; flex-direction: column; }
   .reportControlActions { align-items: stretch; flex-direction: column; }
   .exportButton { width: 100%; }
@@ -447,9 +464,13 @@ td.negative { color: #8b2525; font-weight: 800; }
   .customerPicker > div:first-child { grid-template-columns: 1fr; }
   .organizationList { border-right: 0; border-bottom: 1px solid #e5eceb; }
   .moduleGrid, .adminGrantForm { grid-template-columns: 1fr; }
+  .businessTypeGrid { grid-template-columns: 1fr; }
   .usageLimits, .usageMetrics { grid-template-columns: 1fr; }
   .inventoryToolbar { grid-template-columns: 1fr; }
   .inventoryTabs { min-width: 0; }
+  .productFilters { grid-template-columns: 1fr; }
+  .productFilterSummary { justify-content: space-between; }
+  .batchSummary { grid-template-columns: 1fr; }
   .categoryForm, .adjustmentForm { grid-template-columns: 1fr; }
   .posGrid { grid-template-columns: 1fr; }
   .productTiles { grid-template-columns: repeat(2,minmax(0,1fr)); }
