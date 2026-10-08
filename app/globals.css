@@ -307,6 +307,7 @@ td small { margin-top: 3px; color: var(--muted); }
 .inviteForm legend { padding: 0 7px; color: #31575e; font-size: .9rem; font-weight: 800; }
 .inventoryToolbar { display: grid; grid-template-columns: auto minmax(180px, .4fr) auto; align-items: end; gap: 16px; }
 .inventoryTabs { min-width: 290px; }
+.zoningGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .inventoryForm { padding: 24px; border: 1px solid #d4e3e0; border-radius: 17px; background: #fff; box-shadow: 0 10px 34px rgba(23,74,77,.055); }
 .categoryForm { grid-template-columns: 1fr auto; }
 .adjustmentForm { grid-template-columns: 180px 1fr auto; }
@@ -446,7 +447,7 @@ td.negative { color: #8b2525; font-weight: 800; }
   .imageChooser > span { text-align: center; }
   .imageChooser > small { grid-column: auto; }
   .platformSummary, .platformSplit { grid-template-columns: 1fr; }
-  .reportSummary, .reportTables { grid-template-columns: 1fr; }
+  .reportSummary, .reportTables, .zoningGrid { grid-template-columns: 1fr; }
   .reportControls { align-items: stretch; flex-direction: column; }
   .reportControlActions { align-items: stretch; flex-direction: column; }
   .exportButton { width: 100%; }
