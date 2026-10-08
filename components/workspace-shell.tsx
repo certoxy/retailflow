@@ -120,9 +120,9 @@ export function WorkspaceShell({
         {!loading && data && page === "pos" && <PointOfSale organizationId={data.organization.id} branchId={branchId} branchName={branch?.name ?? "Branch"} canVoid={canManageInventory} />}
         {!loading && data && page === "customers" && <CustomerLoyalty organizationId={data.organization.id} isAdmin={isOrganizationAdmin}/>}
         {!loading && data && page === "returns" && <ReturnsWorkspace organizationId={data.organization.id} branchId={branchId} />}
-        {!loading && data && page === "inventory" && <InventoryManagement organizationId={data.organization.id} branches={data.branches} zoningEnabled={data.organization.product_zoning_enabled} />}
+        {!loading && data && page === "inventory" && <InventoryManagement organizationId={data.organization.id} branches={data.branches} zoningEnabled={data.organization.product_zoning_enabled} expirationEnabled={data.organization.inventory_expiration_enabled} />}
         {!loading && data && page === "operations" && <InventoryOperations organizationId={data.organization.id} branches={data.branches.filter((item) => item.active)} />}
-        {!loading && data && page === "purchasing" && <PurchasingWorkspace organizationId={data.organization.id} branchId={branchId} />}
+        {!loading && data && page === "purchasing" && <PurchasingWorkspace organizationId={data.organization.id} branchId={branchId} expirationEnabled={data.organization.inventory_expiration_enabled} />}
         {!loading && data && page === "branches" && <Branches data={data} onChanged={async () => { await load(); await onWorkspaceRefresh(); }} />}
         {!loading && data && page === "staff" && <Staff data={data} onChanged={load} />}
         {!loading && data && page === "settings" && <Settings organization={data.organization} onChanged={async () => { await load(); await onWorkspaceRefresh(); }} />}
