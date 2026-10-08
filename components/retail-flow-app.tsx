@@ -191,10 +191,12 @@ function OrganizationOnboarding({ onCreated }: { onCreated: () => Promise<void> 
     const name = String(values.get("name") ?? "").trim();
     const slug = String(values.get("slug") ?? "").trim().toLowerCase();
     const branchName = String(values.get("branchName") ?? "Main Branch").trim();
+    const businessType = String(values.get("businessType") ?? "general_retail");
     const { error: createError } = await supabase.rpc("create_organization_with_branch", {
       p_name: name,
       p_slug: slug,
       p_branch_name: branchName,
+      p_business_type: businessType,
     });
     if (createError) setError(createError.message);
     else await onCreated();
@@ -209,6 +211,7 @@ function OrganizationOnboarding({ onCreated }: { onCreated: () => Promise<void> 
       <form onSubmit={submit} className="onboardingForm">
         <label>Organization name<input name="name" required placeholder="Example Retail Store" /></label>
         <label>Organization URL code<input name="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="example-retail-store" /><small>Lowercase letters, numbers, and hyphens only.</small></label>
+        <fieldset className="businessTypePicker"><legend>What type of retail business is this?</legend><div className="businessTypeGrid"><label><input type="radio" name="businessType" value="dry_goods"/><span><strong>Dry Goods</strong><small>Variants, zoning, purchasing, and stock operations.</small></span></label><label><input type="radio" name="businessType" value="convenience_store"/><span><strong>Convenience Store</strong><small>Fast POS, expiration tracking, zoning, and replenishment.</small></span></label><label><input type="radio" name="businessType" value="general_retail" defaultChecked/><span><strong>General Retail</strong><small>A balanced setup for common retail operations.</small></span></label><label><input type="radio" name="businessType" value="custom_retail"/><span><strong>Custom Retail</strong><small>Keep modules flexible for a specialised workflow.</small></span></label></div></fieldset>
         <label>First branch name<input name="branchName" required defaultValue="Main Branch" /></label>
         {error && <div className="formError">{error}</div>}
         <button className="primaryButton" disabled={busy}>{busy ? "Creating workspace…" : "Create organization"}</button>

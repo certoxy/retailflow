@@ -147,6 +147,14 @@ small { color: var(--muted); font-weight: 500; }
 .panel h1 { font-size: clamp(2.25rem, 6vw, 4.25rem); }
 .onboardingPanel { max-width: 760px; }
 .onboardingForm { max-width: 520px; margin-top: 30px; }
+.businessTypePicker { margin: 0; padding: 18px; border: 1px solid #d4e3e0; border-radius: 14px; }
+.businessTypePicker legend { padding: 0 7px; color: #31575e; font-weight: 800; }
+.businessTypeGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.businessTypeGrid label { display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 14px; border: 1px solid #dce8e6; border-radius: 11px; background: #f8fbfa; cursor: pointer; }
+.businessTypeGrid label:has(input:checked) { border-color: var(--brand); background: #eaf8f6; box-shadow: 0 0 0 2px rgba(20,155,152,.1); }
+.businessTypeGrid input { width: auto; margin-top: 3px; }
+.businessTypeGrid span { display: grid; gap: 4px; }
+.businessTypeGrid small { color: var(--muted); line-height: 1.35; }
 .loadingPage { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 16px; color: var(--muted); }
 
 .installPage { min-height: 100vh; padding: clamp(24px, 5vw, 70px); }
@@ -447,6 +455,7 @@ td.negative { color: #8b2525; font-weight: 800; }
   .customerPicker > div:first-child { grid-template-columns: 1fr; }
   .organizationList { border-right: 0; border-bottom: 1px solid #e5eceb; }
   .moduleGrid, .adminGrantForm { grid-template-columns: 1fr; }
+  .businessTypeGrid { grid-template-columns: 1fr; }
   .usageLimits, .usageMetrics { grid-template-columns: 1fr; }
   .inventoryToolbar { grid-template-columns: 1fr; }
   .inventoryTabs { min-width: 0; }
