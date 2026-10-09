@@ -111,7 +111,7 @@ end; $$;
 
 create or replace function public.receive_purchase_order(p_purchase_order_id uuid,p_receipts jsonb)
 returns void language plpgsql security definer set search_path=public as $$
-declare po public.purchase_orders;receipt jsonb;line public.purchase_order_items;qty numeric;new_qty numeric;remaining integer;batch_id uuid;requires_batch boolean;v_batch_number text;expiry date;manufactured date;
+declare po public.purchase_orders;receipt jsonb;line public.purchase_order_items;qty numeric;new_qty numeric;remaining integer;batch_id uuid;v_batch_number text;expiry date;manufactured date;
 begin
   select * into po from public.purchase_orders where id=p_purchase_order_id for update;
   if po.id is null then raise exception 'Purchase order not found'; end if; perform public.require_purchasing_access(po.organization_id);
@@ -120,11 +120,9 @@ begin
     qty:=(receipt->>'quantity')::numeric; if qty<=0 then continue; end if;
     select * into line from public.purchase_order_items where id=(receipt->>'item_id')::uuid and purchase_order_id=po.id for update;
     if line.id is null or line.quantity_received+qty>line.quantity_ordered then raise exception 'Received quantity exceeds outstanding quantity'; end if;
-    select(o.inventory_expiration_enabled and p.tracks_expiration) into requires_batch from public.organizations o join public.products p on p.organization_id=o.id where o.id=po.organization_id and p.id=line.product_id;
     v_batch_number:=nullif(trim(receipt->>'batch_number'),'');
     expiry:=nullif(receipt->>'expiration_date','')::date;
     manufactured:=nullif(receipt->>'manufacture_date','')::date;
-    if requires_batch and(v_batch_number is null or expiry is null) then raise exception 'Batch number and expiration date are required for expiration-tracked products'; end if;
     if expiry is not null and manufactured is not null and expiry<manufactured then raise exception 'Expiration date cannot be before manufacture date'; end if;
     if v_batch_number is not null and exists(select 1 from public.inventory_batches ib where ib.organization_id=po.organization_id and ib.branch_id=po.branch_id and ib.product_id=line.product_id and ib.batch_number=upper(v_batch_number) and ib.status='quarantined') then raise exception 'That batch is quarantined and cannot receive additional stock'; end if;
     update public.purchase_order_items set quantity_received=quantity_received+qty where id=line.id;
