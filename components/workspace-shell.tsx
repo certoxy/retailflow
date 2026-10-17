@@ -59,6 +59,7 @@ export function WorkspaceShell({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [upgradeMessage, setUpgradeMessage] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true); setError("");
@@ -113,7 +114,8 @@ export function WorkspaceShell({
           <div><p className="eyebrow">{membership.organization_name}</p><h1>{titleFor(page)}</h1></div>
           <label className="branchSelector">Active branch<select value={branchId} onChange={(event) => setBranchId(event.target.value)}>{visibleBranches.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
         </header>
-        {!loading&&data&&<SubscriptionBanner organization={data.organization}/>}
+        {!loading&&data&&<SubscriptionBanner organization={data.organization} requesterEmail={email} onMessage={setUpgradeMessage}/>}
+        {upgradeMessage && <div className="formSuccess subscriptionRequestMessage">{upgradeMessage}</div>}
         {error && <div className="formError pageMessage">{error} <button onClick={load}>Retry</button></div>}
         {loading && <div className="contentLoading">Loading workspace…</div>}
         {!loading && data && page === "dashboard" && <Dashboard data={data} branchName={branch?.name ?? "Main Branch"} organizationId={data.organization.id} branchId={branchId} />}
@@ -132,7 +134,20 @@ export function WorkspaceShell({
   );
 }
 
-function SubscriptionBanner({organization}:{organization:AdminData["organization"]}){const trialDays=organization.trial_ends_at?Math.max(0,Math.ceil((new Date(organization.trial_ends_at).getTime()-Date.now())/86400000)):null;return <div className={`subscriptionBanner ${organization.subscription_status}`}><div><strong className="capitalize">{organization.subscription_plan} plan · {organization.subscription_status.replace("_"," ")}</strong><span>{organization.subscription_status==="trial"?`${trialDays} trial day${trialDays===1?"":"s"} remaining`:organization.next_billing_at?`Next billing: ${new Date(organization.next_billing_at).toLocaleDateString()}`:organization.billing_cycle==="complimentary"?"Complimentary account":"Subscription managed by PAOTechs"}</span></div>{["trial","past_due"].includes(organization.subscription_status)&&<a href="mailto:certoxy@gmail.com?subject=RetailFlow%20plan%20upgrade">Upgrade plan</a>}</div>}
+function SubscriptionBanner({organization,requesterEmail,onMessage}:{organization:AdminData["organization"];requesterEmail:string;onMessage:(message:string)=>void}){
+  const [sending,setSending]=useState(false);
+  const [requestError,setRequestError]=useState("");
+  const trialDays=organization.trial_ends_at?Math.max(0,Math.ceil((new Date(organization.trial_ends_at).getTime()-Date.now())/86400000)):null;
+  const needsContact=organization.subscription_status==="trial"&&trialDays!==null&&trialDays<=10;
+  async function requestUpgrade(){
+    setSending(true);setRequestError("");onMessage("");
+    const{error}=await supabase.functions.invoke("subscription-notifications",{body:{action:"upgrade-request",organizationId:organization.id,requesterEmail}});
+    if(error)setRequestError("We couldn’t send the upgrade request. Please contact hello@paotechs.com.");
+    else onMessage("Upgrade request sent to hello@paotechs.com. The PAOTechs team will contact you.");
+    setSending(false);
+  }
+  return <div className={`subscriptionBanner ${organization.subscription_status} ${needsContact?"trialWarning":""}`}><div><strong className="capitalize">{organization.subscription_plan} plan · {organization.subscription_status.replace("_"," ")}</strong><span>{organization.subscription_status==="trial"?`${trialDays} trial day${trialDays===1?"":"s"} remaining`:organization.next_billing_at?`Next billing: ${new Date(organization.next_billing_at).toLocaleDateString()}`:organization.billing_cycle==="complimentary"?"Complimentary account":"Subscription managed by PAOTechs"}</span>{needsContact&&<small>Your free trial ends soon. Contact the App Administrator at hello@paotechs.com to continue using RetailFlow.</small>}{requestError&&<small className="subscriptionRequestError">{requestError}</small>}</div>{["trial","past_due"].includes(organization.subscription_status)&&<button type="button" onClick={()=>void requestUpgrade()} disabled={sending}>{sending?"Sending…":"Upgrade plan"}</button>}</div>
+}
 
 function Dashboard({ data, branchName, organizationId, branchId }: { data: AdminData; branchName: string; organizationId:string; branchId:string }) {
   return <div className="contentStack"><div className="dashboardContext"><span>Reporting branch</span><strong>{branchName}</strong><small>{data.branches.filter((b)=>b.active).length} active branches · {data.members.filter((m)=>m.active).length} active staff</small></div><SalesPurchaseReports organizationId={organizationId} branchId={branchId}/></div>;
