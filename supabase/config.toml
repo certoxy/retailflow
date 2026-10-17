@@ -1,0 +1,2 @@
+[functions.subscription-notifications]
+verify_jwt = false
