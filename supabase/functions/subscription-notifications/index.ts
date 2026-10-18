@@ -39,23 +39,36 @@ async function sendUpgradeRequest(request: Request, organizationId: string) {
   if (userError || !userData.user) return json({ error: "Authentication required" }, 401);
 
   const { data: membership } = await admin.from("organization_memberships")
-    .select("role, organizations(name, subscription_plan, subscription_status, trial_ends_at)")
+    .select("role, organizations(name, business_address, phone, subscription_plan, subscription_status, trial_ends_at)")
     .eq("organization_id", organizationId).eq("user_id", userData.user.id).eq("active", true).maybeSingle();
   if (!membership) return json({ error: "Organization access required" }, 403);
 
   const organization = membership.organizations as unknown as {
-    name: string; subscription_plan: string; subscription_status: string; trial_ends_at: string | null;
+    name: string; business_address: string | null; phone: string | null;
+    subscription_plan: string; subscription_status: string; trial_ends_at: string | null;
   };
+  if (!organization.phone?.trim()) return json({ error: "A contact phone is required in Organization Settings before requesting an upgrade." }, 422);
+
+  const { data: owners, error: ownerError } = await admin.from("organization_memberships")
+    .select("profiles(full_name,email)").eq("organization_id", organizationId).eq("role", "owner").eq("active", true);
+  if (ownerError) throw ownerError;
+  const ownerContacts = (owners ?? []).map((item) => item.profiles as unknown as { full_name: string | null; email: string } | null).filter(Boolean) as Array<{ full_name: string | null; email: string }>;
   const requesterName = String(userData.user.user_metadata?.full_name ?? userData.user.email ?? "RetailFlow user");
+  const ownerNames = ownerContacts.length ? ownerContacts.map((owner) => owner.full_name || "Name not provided").join(", ") : requesterName;
+  const ownerEmails = ownerContacts.length ? ownerContacts.map((owner) => owner.email).join(", ") : (userData.user.email ?? "Not provided");
   const subject = `RetailFlow upgrade request — ${organization.name}`;
   const text = [
-    `${requesterName} (${userData.user.email}) requested a RetailFlow plan upgrade.`,
+    `A RetailFlow plan upgrade was requested by ${requesterName} (${userData.user.email}).`,
     `Organization: ${organization.name}`,
+    `Owner: ${ownerNames}`,
+    `Owner email: ${ownerEmails}`,
+    `Contact phone: ${organization.phone}`,
+    `Business address: ${organization.business_address ?? "Not provided"}`,
     `Current plan: ${organization.subscription_plan}`,
     `Subscription status: ${organization.subscription_status}`,
     `Trial ends: ${organization.trial_ends_at ? formatDate(organization.trial_ends_at) : "Not set"}`,
   ].join("\n");
-  const html = emailLayout(subject, `<h1>RetailFlow upgrade request</h1><p><strong>${escapeHtml(requesterName)}</strong> (${escapeHtml(userData.user.email ?? "")}) requested a plan upgrade.</p><p><strong>Organization:</strong> ${escapeHtml(organization.name)}<br><strong>Current plan:</strong> ${escapeHtml(organization.subscription_plan)}<br><strong>Status:</strong> ${escapeHtml(organization.subscription_status)}<br><strong>Trial ends:</strong> ${organization.trial_ends_at ? escapeHtml(formatDate(organization.trial_ends_at)) : "Not set"}</p>`);
+  const html = emailLayout(subject, `<h1>RetailFlow upgrade request</h1><p><strong>${escapeHtml(requesterName)}</strong> (${escapeHtml(userData.user.email ?? "")}) requested a plan upgrade.</p><p><strong>Organization:</strong> ${escapeHtml(organization.name)}<br><strong>Owner:</strong> ${escapeHtml(ownerNames)}<br><strong>Owner email:</strong> ${escapeHtml(ownerEmails)}<br><strong>Contact phone:</strong> ${escapeHtml(organization.phone)}<br><strong>Business address:</strong> ${escapeHtml(organization.business_address ?? "Not provided")}<br><strong>Current plan:</strong> ${escapeHtml(organization.subscription_plan)}<br><strong>Status:</strong> ${escapeHtml(organization.subscription_status)}<br><strong>Trial ends:</strong> ${organization.trial_ends_at ? escapeHtml(formatDate(organization.trial_ends_at)) : "Not set"}</p>`);
 
   const result = await sendEmail({ to: [supportEmail], replyTo: userData.user.email ?? supportEmail, subject, html, text }, `upgrade-${organizationId}-${userData.user.id}`);
   return json({ sent: true, id: result.id });
