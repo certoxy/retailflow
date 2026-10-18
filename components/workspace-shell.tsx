@@ -196,10 +196,24 @@ export function WorkspaceShell({
           <BrandLogo iconOnly />
         </div>
         <div className="mobileIdentity">
-          <strong>{branch?.name ?? membership.organization_name}</strong>
+          <select
+            className="mobileBranchSelect"
+            value={branchId}
+            aria-label="Active branch"
+            onChange={(event) => setBranchId(event.target.value)}
+          >
+            {visibleBranches.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
           <span>{membership.organization_name}</span>
         </div>
-        <span className="mobileOnline" aria-label="Online" />
+        <span
+          className={`mobileOnline ${networkOnline ? "online" : "offline"}`}
+          aria-label={networkOnline ? "Online" : "Offline"}
+        />
         <button
           className="mobileMenuButton"
           onClick={() => setMobileMenuOpen(true)}
@@ -281,6 +295,15 @@ export function WorkspaceShell({
         </div>
       </aside>
       <section className={`workspaceMain ${page === "pos" ? "posPage" : ""}`}>
+        {!loading && data && page === "pos" && (
+          <div className="mobileSubscriptionSlot">
+            <SubscriptionBanner
+              organization={data.organization}
+              requesterEmail={email}
+              onMessage={setUpgradeMessage}
+            />
+          </div>
+        )}
         <header className="workspaceHeader">
           <div>
             <p className="eyebrow">{membership.organization_name}</p>
