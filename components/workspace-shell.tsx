@@ -59,6 +59,7 @@ export function WorkspaceShell({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [upgradeMessage, setUpgradeMessage] = useState("");
 
   const load = useCallback(async () => {
@@ -72,6 +73,15 @@ export function WorkspaceShell({
   }, [membership.organization_id]);
 
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    setSidebarCollapsed(window.localStorage.getItem("retailflow:sidebar-collapsed") === "true");
+  }, []);
+  function toggleSidebar() {
+    setSidebarCollapsed((collapsed) => {
+      window.localStorage.setItem("retailflow:sidebar-collapsed", String(!collapsed));
+      return !collapsed;
+    });
+  }
   const branch = useMemo(() => data?.branches.find((item) => item.id === branchId), [data, branchId]);
   const isOrganizationAdmin = membership.role === "owner" || membership.role === "administrator";
   const canManageInventory = isOrganizationAdmin || membership.role === "manager";
@@ -88,7 +98,7 @@ export function WorkspaceShell({
   });
 
   return (
-    <main className="workspaceLayout">
+    <main className={`workspaceLayout ${sidebarCollapsed ? "sidebarCollapsed" : ""}`}>
       <header className="mobileTopbar">
         <div className="mobileBrandMark"><BrandLogo iconOnly /></div>
         <div className="mobileIdentity"><strong>{branch?.name ?? membership.organization_name}</strong><span>{membership.organization_name}</span></div>
@@ -98,14 +108,17 @@ export function WorkspaceShell({
       {mobileMenuOpen && <button className="mobileMenuBackdrop" aria-label="Close navigation" onClick={() => setMobileMenuOpen(false)} />}
       <aside className={`sidebar ${mobileMenuOpen ? "mobileOpen" : ""}`}>
         <button className="mobileMenuClose" onClick={() => setMobileMenuOpen(false)} aria-label="Close navigation">×</button>
-        <BrandLogo className="sidebarBrand" />
+        <div className="sidebarBrandRow">
+          <BrandLogo className="sidebarBrand" iconOnly={sidebarCollapsed} />
+          <button className="sidebarCollapseButton" onClick={toggleSidebar} aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"} title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}>{sidebarCollapsed ? "›" : "‹"}</button>
+        </div>
         <div className="organizationIdentity">
           <strong>{membership.organization_name}</strong>
           <span>{membership.role}</span>
         </div>
         <nav>
-          {visibleNav.map((item) => <button key={item.id} className={page === item.id ? "active" : ""} onClick={() => { setPage(item.id); setMobileMenuOpen(false); }}><span>{item.icon}</span>{item.label}</button>)}
-          {isPlatformAdministrator && <button className={page === "platform" ? "active" : ""} onClick={() => { setPage("platform"); setMobileMenuOpen(false); }}><span>◇</span>Platform Administration</button>}
+          {visibleNav.map((item) => <button key={item.id} className={page === item.id ? "active" : ""} title={sidebarCollapsed ? item.label : undefined} onClick={() => { setPage(item.id); setMobileMenuOpen(false); }}><span>{item.icon}</span><span className="navLabel">{item.label}</span></button>)}
+          {isPlatformAdministrator && <button className={page === "platform" ? "active" : ""} title={sidebarCollapsed ? "Platform Administration" : undefined} onClick={() => { setPage("platform"); setMobileMenuOpen(false); }}><span>◇</span><span className="navLabel">Platform Administration</span></button>}
         </nav>
         <div className="sidebarFooter"><span>{email}</span><button onClick={onSignOut}>Sign out</button></div>
       </aside>
