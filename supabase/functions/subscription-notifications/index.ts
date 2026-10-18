@@ -38,11 +38,27 @@ async function sendUpgradeRequest(request: Request, organizationId: string) {
   const { data: userData, error: userError } = await admin.auth.getUser(token);
   if (userError || !userData.user) return json({ error: "Authentication required" }, 401);
 
-  const { data: membership, error: membershipLookupError } = await admin.from("organization_memberships")
+  let { data: membership, error: membershipLookupError } = await admin.from("organization_memberships")
     .select("role")
     .eq("organization_id", organizationId).eq("user_id", userData.user.id).eq("active", true).maybeSingle();
   if (membershipLookupError) throw membershipLookupError;
-  if (!membership) return json({ error: "Organization access required" }, 403);
+  if (!membership && userData.user.email) {
+    const { data: matchingProfile, error: profileError } = await admin.from("profiles")
+      .select("id").ilike("email", userData.user.email).maybeSingle();
+    if (profileError) throw profileError;
+    if (matchingProfile) {
+      const fallback = await admin.from("organization_memberships").select("role")
+        .eq("organization_id", organizationId).eq("user_id", matchingProfile.id).eq("active", true).maybeSingle();
+      if (fallback.error) throw fallback.error;
+      membership = fallback.data;
+    }
+  }
+  if (!membership) {
+    const { data: platformAdmin, error: platformAdminError } = await admin.from("platform_administrators")
+      .select("user_id").eq("user_id", userData.user.id).eq("active", true).maybeSingle();
+    if (platformAdminError) throw platformAdminError;
+    if (!platformAdmin) return json({ error: "Your signed-in account does not have access to request an upgrade for this organization." }, 403);
+  }
 
   const { data: organization, error: organizationError } = await admin.from("organizations")
     .select("name,business_address,phone,subscription_plan,subscription_status,trial_ends_at")
