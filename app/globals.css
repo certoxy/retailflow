@@ -289,7 +289,14 @@ td small { margin-top: 3px; color: var(--muted); }
 .subscriptionBanner { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: -12px 0 24px; padding: 13px 16px; border: 1px solid #cfe2df; border-radius: 13px; color: #24575c; background: #eff9f8; }
 .subscriptionBanner > div { display: grid; gap: 3px; }
 .subscriptionBanner span { color: var(--muted); font-size: .8rem; }
-.subscriptionBanner a { padding: 9px 13px; border-radius: 9px; color: #fff; background: var(--brand); font-size: .82rem; font-weight: 800; text-decoration: none; white-space: nowrap; }
+.subscriptionBanner button { padding: 9px 13px; border: 0; border-radius: 9px; color: #fff; background: var(--brand); font-size: .82rem; font-weight: 800; white-space: nowrap; }
+.subscriptionBanner button:disabled { cursor: wait; opacity: .65; }
+.subscriptionBanner small { color: inherit; font-size: .78rem; font-weight: 750; }
+.subscriptionBanner.trialWarning { color: #86550d; background: #fff3d8; border-color: #ecd39e; }
+.subscriptionRequestError { color: #8b2525 !important; }
+.subscriptionRequestMessage { margin: -12px 0 24px; }
+.trialExpiryLabel { color: #9a5d05; font-weight: 850; }
+.trialMetric { border-color: #ecd39e; background: #fff8e8; }
 .subscriptionBanner.past_due { color: #86550d; background: #fff3d8; border-color: #ecd39e; }
 .subscriptionBanner.suspended, .subscriptionBanner.cancelled { color: #8b2525; background: #fdeaea; border-color: #efcaca; }
 .controlHeader { display: flex; align-items: start; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid #e5eceb; }
@@ -408,6 +415,13 @@ td.negative { color: #8b2525; font-weight: 800; }
 .barGroup small { color: var(--muted); font-size: .66rem; white-space: nowrap; transform: rotate(-38deg); transform-origin: top center; }
 .reportTables { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .reportTables h2 { margin: 0 0 12px; font-size: 1.15rem; }
+.organizationOwnerCard { display: grid; gap: 16px; padding: 20px; border: 1px solid #dce8e6; border-radius: 14px; background: linear-gradient(135deg,#f7fbfa,#fff); }
+.ownerDetailsList { display: grid; gap: 10px; }
+.ownerDetail { display: grid; grid-template-columns: 44px minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 12px; border: 1px solid #e5eeec; border-radius: 12px; background: #fff; }
+.ownerAvatar { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: #fff; background: #168b89; font-weight: 800; }
+.ownerDetail > div:nth-child(2) { display: grid; gap: 3px; min-width: 0; }
+.ownerDetail a { overflow: hidden; color: #246b78; font-size: .85rem; text-overflow: ellipsis; white-space: nowrap; }
+.emptyOwnerDetails { margin: 0; color: var(--muted); }
 
 @media (max-width: 1080px) {
   .workspaceLayout { grid-template-columns: 230px 1fr; }
@@ -466,6 +480,8 @@ td.negative { color: #8b2525; font-weight: 800; }
   .moduleGrid, .adminGrantForm { grid-template-columns: 1fr; }
   .businessTypeGrid { grid-template-columns: 1fr; }
   .usageLimits, .usageMetrics { grid-template-columns: 1fr; }
+  .ownerDetail { grid-template-columns: 44px minmax(0,1fr); }
+  .ownerDetail > .statusPill { grid-column: 2; justify-self: start; }
   .inventoryToolbar { grid-template-columns: 1fr; }
   .inventoryTabs { min-width: 0; }
   .productFilters { grid-template-columns: 1fr; }
