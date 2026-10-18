@@ -416,7 +416,7 @@ export function PointOfSale({
     return <div className="contentLoading">Loading Order…</div>;
   return (
     <div className="contentStack posWorkspace">
-      <div className={`connectionBanner ${online ? "online" : "offline"}`}>
+      {(!online || pending.length > 0) && <div className={`connectionBanner ${online ? "online" : "offline"}`}>
         <span>{online ? "● Online" : "● Offline mode"}</span>
         <strong>
           {pending.length > 0
@@ -430,7 +430,7 @@ export function PointOfSale({
             {syncing ? "Syncing…" : "Sync now"}
           </button>
         )}
-      </div>
+      </div>}
       {error && <div className="formError">{error}</div>}
       {pending.some((s) => s.lastError) && (
         <div className="syncConflict">
