@@ -15,6 +15,7 @@ const fromEmail = "RetailFlow <noreply@send.paotechs.com>";
 const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
 
 type Organization = { id: string; name: string; trial_ends_at: string };
+type TrialNotificationType = "trial_10_day" | "trial_expired";
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -64,42 +65,51 @@ async function sendTrialReminders(request: Request) {
   if (!cronSecret || request.headers.get("x-cron-secret") !== cronSecret) return json({ error: "Invalid scheduler credential" }, 401);
   const now = new Date();
   const limit = new Date(now.getTime() + 10 * 86400000);
+  const startOfToday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const { data: organizations, error } = await admin.from("organizations").select("id,name,trial_ends_at")
-    .eq("active", true).eq("subscription_status", "trial").gt("trial_ends_at", now.toISOString()).lte("trial_ends_at", limit.toISOString());
+    .eq("active", true).eq("subscription_status", "trial").gte("trial_ends_at", startOfToday.toISOString()).lte("trial_ends_at", limit.toISOString());
   if (error) throw error;
 
   const results = [];
-  for (const organization of (organizations ?? []) as Organization[]) results.push(await notifyOrganization(organization));
+  for (const organization of (organizations ?? []) as Organization[]) {
+    const daysRemaining = calendarDaysBetween(now, new Date(organization.trial_ends_at));
+    if (daysRemaining === 0) results.push(await notifyOrganization(organization, "trial_expired", 0));
+    else if (daysRemaining >= 1 && daysRemaining <= 10) results.push(await notifyOrganization(organization, "trial_10_day", daysRemaining));
+  }
   return json({ processed: results.length, results });
 }
 
-async function notifyOrganization(organization: Organization) {
+async function notifyOrganization(organization: Organization, notificationType: TrialNotificationType, days: number) {
   const { data: existing } = await admin.from("subscription_notification_log").select("id,status")
-    .eq("organization_id", organization.id).eq("notification_type", "trial_10_day").eq("trial_ends_at", organization.trial_ends_at).maybeSingle();
-  if (existing?.status === "sent") return { organizationId: organization.id, status: "already_sent" };
+    .eq("organization_id", organization.id).eq("notification_type", notificationType).eq("trial_ends_at", organization.trial_ends_at).maybeSingle();
+  if (existing?.status === "sent") return { organizationId: organization.id, notificationType, status: "already_sent" };
 
   const { data: memberships, error: membershipError } = await admin.from("organization_memberships")
     .select("profiles(email)").eq("organization_id", organization.id).eq("active", true).in("role", ["owner", "administrator"]);
   if (membershipError) throw membershipError;
   const recipients = [...new Set((memberships ?? []).map((item) => (item.profiles as unknown as { email: string } | null)?.email).filter(Boolean))] as string[];
-  if (!recipients.length) return { organizationId: organization.id, status: "no_admin_email" };
+  if (!recipients.length) return { organizationId: organization.id, notificationType, status: "no_admin_email" };
 
-  const row = { organization_id: organization.id, notification_type: "trial_10_day", trial_ends_at: organization.trial_ends_at, recipients, cc_recipients: [supportEmail], status: "pending", error_message: null, updated_at: new Date().toISOString() };
+  const row = { organization_id: organization.id, notification_type: notificationType, trial_ends_at: organization.trial_ends_at, recipients, cc_recipients: [supportEmail], status: "pending", error_message: null, updated_at: new Date().toISOString() };
   const { error: logError } = await admin.from("subscription_notification_log").upsert(row, { onConflict: "organization_id,notification_type,trial_ends_at" });
   if (logError) throw logError;
 
-  const days = Math.max(1, Math.ceil((new Date(organization.trial_ends_at).getTime() - Date.now()) / 86400000));
-  const subject = `${days} days remaining in your RetailFlow free trial`;
-  const text = `Your RetailFlow free trial for ${organization.name} ends on ${formatDate(organization.trial_ends_at)}. Contact the App Administrator at ${supportEmail} to continue using RetailFlow. Open RetailFlow: ${appUrl}`;
-  const html = emailLayout(subject, `<h1>Your RetailFlow trial ends soon</h1><p><strong>${days} days remain</strong> in the free trial for ${escapeHtml(organization.name)}.</p><p>Your trial ends on <strong>${escapeHtml(formatDate(organization.trial_ends_at))}</strong>. Contact the App Administrator at <a href="mailto:${supportEmail}">${supportEmail}</a> to choose a plan and continue using RetailFlow.</p><p><a class="button" href="${appUrl}">Open RetailFlow</a></p>`);
+  const expired = notificationType === "trial_expired";
+  const subject = expired ? `Your RetailFlow free trial has expired` : `${days} days remaining in your RetailFlow free trial`;
+  const text = expired
+    ? `The RetailFlow free trial for ${organization.name} expired on ${formatDate(organization.trial_ends_at)}. Contact the App Administrator at ${supportEmail} to continue using RetailFlow. Open RetailFlow: ${appUrl}`
+    : `Your RetailFlow free trial for ${organization.name} ends on ${formatDate(organization.trial_ends_at)}. Contact the App Administrator at ${supportEmail} to continue using RetailFlow. Open RetailFlow: ${appUrl}`;
+  const html = expired
+    ? emailLayout(subject, `<h1>Your RetailFlow trial has expired</h1><p>The free trial for <strong>${escapeHtml(organization.name)}</strong> expired on <strong>${escapeHtml(formatDate(organization.trial_ends_at))}</strong>.</p><p>Contact the App Administrator at <a href="mailto:${supportEmail}">${supportEmail}</a> to choose a plan and continue using RetailFlow.</p><p><a class="button" href="${appUrl}">Open RetailFlow</a></p>`)
+    : emailLayout(subject, `<h1>Your RetailFlow trial ends soon</h1><p><strong>${days} days remain</strong> in the free trial for ${escapeHtml(organization.name)}.</p><p>Your trial ends on <strong>${escapeHtml(formatDate(organization.trial_ends_at))}</strong>. Contact the App Administrator at <a href="mailto:${supportEmail}">${supportEmail}</a> to choose a plan and continue using RetailFlow.</p><p><a class="button" href="${appUrl}">Open RetailFlow</a></p>`);
 
   try {
-    const sent = await sendEmail({ to: recipients, cc: [supportEmail], replyTo: supportEmail, subject, html, text }, `trial-10-day-${organization.id}-${organization.trial_ends_at}`);
-    await admin.from("subscription_notification_log").update({ status: "sent", provider_message_id: sent.id, sent_at: new Date().toISOString(), error_message: null, updated_at: new Date().toISOString() }).eq("organization_id", organization.id).eq("notification_type", "trial_10_day").eq("trial_ends_at", organization.trial_ends_at);
-    return { organizationId: organization.id, status: "sent" };
+    const sent = await sendEmail({ to: recipients, cc: [supportEmail], replyTo: supportEmail, subject, html, text }, `${notificationType}-${organization.id}-${organization.trial_ends_at}`);
+    await admin.from("subscription_notification_log").update({ status: "sent", provider_message_id: sent.id, sent_at: new Date().toISOString(), error_message: null, updated_at: new Date().toISOString() }).eq("organization_id", organization.id).eq("notification_type", notificationType).eq("trial_ends_at", organization.trial_ends_at);
+    return { organizationId: organization.id, notificationType, status: "sent" };
   } catch (error) {
-    await admin.from("subscription_notification_log").update({ status: "failed", error_message: error instanceof Error ? error.message : "Send failed", updated_at: new Date().toISOString() }).eq("organization_id", organization.id).eq("notification_type", "trial_10_day").eq("trial_ends_at", organization.trial_ends_at);
-    return { organizationId: organization.id, status: "failed" };
+    await admin.from("subscription_notification_log").update({ status: "failed", error_message: error instanceof Error ? error.message : "Send failed", updated_at: new Date().toISOString() }).eq("organization_id", organization.id).eq("notification_type", notificationType).eq("trial_ends_at", organization.trial_ends_at);
+    return { organizationId: organization.id, notificationType, status: "failed" };
   }
 }
 
@@ -115,5 +125,13 @@ function emailLayout(title: string, content: string) {
 }
 
 function formatDate(value: string) { return new Intl.DateTimeFormat("en-PH", { dateStyle: "long", timeZone: "Asia/Manila" }).format(new Date(value)); }
+function calendarDaysBetween(from: Date, to: Date) {
+  const formatter = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila", year: "numeric", month: "2-digit", day: "2-digit" });
+  const toUtcDay = (date: Date) => {
+    const parts = Object.fromEntries(formatter.formatToParts(date).map((part) => [part.type, part.value]));
+    return Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day));
+  };
+  return Math.round((toUtcDay(to) - toUtcDay(from)) / 86400000);
+}
 function escapeHtml(value: string) { return value.replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]!); }
 function json(body: unknown, status = 200) { return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }); }
