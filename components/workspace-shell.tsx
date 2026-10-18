@@ -143,7 +143,7 @@ function SubscriptionBanner({organization,requesterEmail,onMessage}:{organizatio
     setSending(true);setRequestError("");onMessage("");
     if(!organization.phone?.trim()){setRequestError("Add a contact phone in Organization Settings before requesting an upgrade.");setSending(false);return;}
     const{data,error}=await supabase.functions.invoke("subscription-notifications",{body:{action:"upgrade-request",organizationId:organization.id,requesterEmail}});
-    if(error)setRequestError(typeof data?.error==="string"?data.error:"We couldn’t send the upgrade request. Please contact hello@paotechs.com.");
+    if(error){let detail=typeof data?.error==="string"?data.error:"";const response=(error as {context?:Response}).context;if(!detail&&response){try{const payload=await response.clone().json() as {error?:string};detail=payload.error??"";}catch{/* Use the safe fallback below. */}}setRequestError(detail||"We couldn’t send the upgrade request. Please contact hello@paotechs.com.");}
     else onMessage("Upgrade request sent to hello@paotechs.com. The PAOTechs team will contact you.");
     setSending(false);
   }
