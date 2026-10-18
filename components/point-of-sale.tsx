@@ -111,6 +111,7 @@ export function PointOfSale({
   const [syncing, setSyncing] = useState(false);
   const [moreCartItems, setMoreCartItems] = useState(false);
   const cartItemsRef = useRef<HTMLDivElement>(null);
+  const cartPanelRef = useRef<HTMLElement>(null);
   const refreshPending = useCallback(
     () => setPending(readJson<PendingSale[]>(queueKey(organizationId), [])),
     [organizationId],
@@ -416,6 +417,24 @@ export function PointOfSale({
     return <div className="contentLoading">Loading Order…</div>;
   return (
     <div className="contentStack posWorkspace">
+      {view === "pos" && (
+        <button
+          className="floatingOrderCounter"
+          onClick={() =>
+            cartPanelRef.current?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            })
+          }
+          aria-label={`View current order with ${cart.reduce((sum, item) => sum + item.quantity, 0)} items`}
+        >
+          <span>Order</span>
+          <strong>
+            {cart.reduce((sum, item) => sum + item.quantity, 0)} · ₱
+            {total.toFixed(2)}
+          </strong>
+        </button>
+      )}
       {(!online || pending.length > 0) && <div className={`connectionBanner ${online ? "online" : "offline"}`}>
         <span>{online ? "● Online" : "● Offline mode"}</span>
         <strong>
@@ -493,7 +512,7 @@ export function PointOfSale({
               })}
             </div>
           </section>
-          <aside className="cartPanel">
+          <aside className="cartPanel" ref={cartPanelRef}>
             <div className="cartHeading">
               <h2>Current order</h2>
               <span>
