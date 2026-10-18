@@ -38,15 +38,17 @@ async function sendUpgradeRequest(request: Request, organizationId: string) {
   const { data: userData, error: userError } = await admin.auth.getUser(token);
   if (userError || !userData.user) return json({ error: "Authentication required" }, 401);
 
-  const { data: membership } = await admin.from("organization_memberships")
-    .select("role, organizations(name, business_address, phone, subscription_plan, subscription_status, trial_ends_at)")
+  const { data: membership, error: membershipLookupError } = await admin.from("organization_memberships")
+    .select("role")
     .eq("organization_id", organizationId).eq("user_id", userData.user.id).eq("active", true).maybeSingle();
+  if (membershipLookupError) throw membershipLookupError;
   if (!membership) return json({ error: "Organization access required" }, 403);
 
-  const organization = membership.organizations as unknown as {
-    name: string; business_address: string | null; phone: string | null;
-    subscription_plan: string; subscription_status: string; trial_ends_at: string | null;
-  };
+  const { data: organization, error: organizationError } = await admin.from("organizations")
+    .select("name,business_address,phone,subscription_plan,subscription_status,trial_ends_at")
+    .eq("id", organizationId).maybeSingle();
+  if (organizationError) throw organizationError;
+  if (!organization) return json({ error: "Organization not found" }, 404);
   if (!organization.phone?.trim()) return json({ error: "A contact phone is required in Organization Settings before requesting an upgrade." }, 422);
 
   const { data: owners, error: ownerError } = await admin.from("organization_memberships")
