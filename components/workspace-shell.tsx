@@ -103,6 +103,7 @@ export function WorkspaceShell({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [upgradeMessage, setUpgradeMessage] = useState("");
+  const [networkOnline, setNetworkOnline] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -123,6 +124,15 @@ export function WorkspaceShell({
     setSidebarCollapsed(
       window.localStorage.getItem("retailflow:sidebar-collapsed") === "true",
     );
+    setNetworkOnline(navigator.onLine);
+    const wentOnline = () => setNetworkOnline(true);
+    const wentOffline = () => setNetworkOnline(false);
+    window.addEventListener("online", wentOnline);
+    window.addEventListener("offline", wentOffline);
+    return () => {
+      window.removeEventListener("online", wentOnline);
+      window.removeEventListener("offline", wentOffline);
+    };
   }, []);
   function toggleSidebar() {
     setSidebarCollapsed((collapsed) => {
@@ -214,7 +224,13 @@ export function WorkspaceShell({
           ×
         </button>
         <div className="sidebarBrandRow">
-          <BrandLogo className="sidebarBrand" iconOnly={sidebarCollapsed} />
+          <div
+            className={`sidebarBrandStatus ${networkOnline ? "online" : "offline"}`}
+            aria-label={networkOnline ? "Online" : "Offline"}
+            title={networkOnline ? "Online" : "Offline"}
+          >
+            <BrandLogo className="sidebarBrand" iconOnly={sidebarCollapsed} />
+          </div>
           <button
             className="sidebarCollapseButton"
             onClick={toggleSidebar}
@@ -270,21 +286,30 @@ export function WorkspaceShell({
             <p className="eyebrow">{membership.organization_name}</p>
             <h1>{titleFor(page)}</h1>
           </div>
-          <label className="branchSelector">
-            Active branch
-            <select
-              value={branchId}
-              onChange={(event) => setBranchId(event.target.value)}
-            >
-              {visibleBranches.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="workspaceHeaderControls">
+            {!loading && data && page === "pos" && (
+              <SubscriptionBanner
+                organization={data.organization}
+                requesterEmail={email}
+                onMessage={setUpgradeMessage}
+              />
+            )}
+            <label className="branchSelector">
+              Active branch
+              <select
+                value={branchId}
+                onChange={(event) => setBranchId(event.target.value)}
+              >
+                {visibleBranches.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </header>
-        {!loading && data && (
+        {!loading && data && page !== "pos" && (
           <SubscriptionBanner
             organization={data.organization}
             requesterEmail={email}
