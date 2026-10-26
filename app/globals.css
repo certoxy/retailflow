@@ -110,6 +110,15 @@ button { cursor: pointer; }
 }
 
 .authIntro { max-width: 760px; }
+.authIntro .summary { max-width: 700px; margin: 20px 0 24px; }
+.authFeatureGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
+.authFeatureGrid article { display: grid; grid-template-columns: 38px minmax(0,1fr); align-items: start; gap: 11px; padding: 14px; border: 1px solid rgba(190,212,209,.85); border-radius: 14px; background: rgba(255,255,255,.72); backdrop-filter: blur(8px); }
+.authFeatureGrid article > span { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; color: var(--brand); background: var(--brand-soft); font-size: 1rem; font-weight: 900; }
+.authFeatureGrid article > div { display: grid; gap: 4px; }
+.authFeatureGrid strong { color: var(--ink); font-size: .9rem; }
+.authFeatureGrid small { color: var(--muted); font-size: .76rem; line-height: 1.4; }
+.authBenefits { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 18px; color: #31575e; font-size: .78rem; font-weight: 800; }
+.authBenefits span { white-space: nowrap; }
 
 .authCard, .panel {
   width: 100%;
@@ -187,6 +196,7 @@ small { color: var(--muted); font-weight: 500; }
   .authPage { grid-template-columns: 1fr; }
   .authIntro h1 { font-size: clamp(2.7rem, 12vw, 4.5rem); }
   .authCard { max-width: none; justify-self: stretch; }
+  .authIntro { max-width: none; }
   .account span { display: none; }
   .installLayout { grid-template-columns: 1fr; }
   .installPhone { width: min(310px, 88vw); }
@@ -584,6 +594,8 @@ td.negative { color: #8b2525; font-weight: 800; }
   .productTiles button { padding: 12px 14px; }
   .metricCard { padding: 17px; }
   .authPage { padding: 18px; }
+  .authFeatureGrid { grid-template-columns: 1fr; }
+  .authFeatureGrid article { padding: 12px; }
   .authCard, .panel { padding: 22px; border-radius: 18px; }
   .cartItem { grid-template-columns: minmax(0,1fr) 58px auto 24px; }
   .paymentFields { grid-template-columns: 1fr; }
