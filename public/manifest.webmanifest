@@ -1,7 +1,7 @@
 {
   "name": "RetailFlow",
   "short_name": "RetailFlow",
-  "description": "Retail sales and inventory management by PAOTechs",
+  "description": "Retail inventory and branch operations management by PAOTechs",
   "id": "/",
   "start_url": "/",
   "scope": "/",
