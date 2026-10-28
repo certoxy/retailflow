@@ -156,14 +156,14 @@ function AuthScreen() {
         <BrandLogo className="authBrandLogo" />
         <p className="eyebrow">Complete retail operations platform</p>
         <h1>Run your store with clarity.</h1>
-        <p className="summary">RetailFlow brings daily sales, inventory, purchasing, customers, and branch operations into one secure and easy-to-use workspace.</p>
+        <p className="summary">RetailFlow brings inventory, purchasing, customers, staff, and branch operations into one secure and easy-to-use workspace.</p>
         <div className="authFeatureGrid" aria-label="RetailFlow features">
-          <article><span>▣</span><div><strong>Fast order processing</strong><small>Simple POS with receipts, multiple payments, and offline sales.</small></div></article>
+          <article><span>▣</span><div><strong>Organized product catalog</strong><small>Manage products, pricing, units, images, barcodes, and availability.</small></div></article>
           <article><span>▤</span><div><strong>Real-time inventory</strong><small>Track stock, batches, expiration dates, transfers, and disposals.</small></div></article>
           <article><span>▥</span><div><strong>Smarter purchasing</strong><small>Manage suppliers, purchase orders, receiving, and reorder needs.</small></div></article>
           <article><span>◎</span><div><strong>Customer loyalty</strong><small>Build customer profiles, reward purchases, and encourage repeat sales.</small></div></article>
           <article><span>⌂</span><div><strong>Multi-branch control</strong><small>Manage branch pricing, staff access, and stock movement in one place.</small></div></article>
-          <article><span>▦</span><div><strong>Reports that help</strong><small>Monitor sales, purchases, expenses, and performance by date or branch.</small></div></article>
+          <article><span>▦</span><div><strong>Reports that help</strong><small>Monitor inventory movement, purchases, expenses, and branch performance.</small></div></article>
         </div>
         <div className="authBenefits"><span>✓ 30-day free trial</span><span>✓ Installable mobile app</span><span>✓ Secure cloud workspace</span></div>
         <a className="installAppLink" href="/download">Install the RetailFlow mobile app →</a>
