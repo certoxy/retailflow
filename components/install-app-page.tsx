@@ -59,7 +59,7 @@ export function InstallAppPage() {
           <div className="installCopy">
             <p className="eyebrow">RetailFlow mobile app</p>
             <h1>Run your store from your phone.</h1>
-            <p className="summary">Install RetailFlow on Android or iPhone for quick access to orders, products, inventory, and daily store operations—without downloading from an app store.</p>
+            <p className="summary">Install RetailFlow on Android or iPhone for quick access to products, inventory, purchasing, customers, and branch operations—without downloading from an app store.</p>
             {installed ? (
               <div className="installSuccess"><span>✓</span><div><strong>RetailFlow is installed</strong><p>Open it from your home screen or app launcher.</p></div></div>
             ) : (
@@ -74,7 +74,7 @@ export function InstallAppPage() {
             <div className="installPhoneScreen">
               <img src="/brand/retailflow-icon-192.png?v=2" alt="" />
               <strong>RetailFlow</strong>
-              <span>Sales and inventory,<br />built to flow.</span>
+              <span>Inventory and operations,<br />built to flow.</span>
               <div className="installPhoneButton">Open app</div>
             </div>
           </div>
