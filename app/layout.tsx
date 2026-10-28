@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "RetailFlow",
-  description: "Multi-tenant retail sales and inventory management by PAOTechs",
+  description: "Multi-branch retail inventory and operations management by PAOTechs",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/favicon.png?v=2",
